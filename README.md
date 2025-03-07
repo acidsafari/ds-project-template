@@ -18,13 +18,53 @@ This project aims to create Python scripts to process, visualize, and model acce
 
 This project aligns with the principles of the Quantified Self movement: "The quantified self is any individual engaged in the self-tracking of any kind of biological, physical, behavioral, or environmental information. The self-tracking is driven by a certain goal of the individual, with a desire to act upon the collected information" (Hoogendoorn, M., & Funk, B., 2018). By tracking and analyzing exercise data, users can gain insights into their workout patterns, improve form, and track progress over time.
 
-## Adjusting .gitignore
+### Data Source
 
-Ensure you adjust the `.gitignore` file according to your project needs. For example, since this is a template, the `/data/` folder is commented out and data will not be exlucded from source control:
+The raw sensor data used in this project can be downloaded from the [Datalumina documentation portal](https://docs.datalumina.io/s1eFpcdtbvRTMb). The dataset includes accelerometer and gyroscope readings from various barbell exercises, including bench press, deadlift, overhead press, barbell row, and squat. After downloading, place the data files in the `data/raw` directory.
+
+Note: The data directories contain `.gitkeep` files to maintain the directory structure in version control, even though the actual data files are excluded via `.gitignore`. This ensures that the project structure remains intact when cloning the repository.
+
+## Environment Setup
+
+This project supports two methods for managing dependencies:
+
+### Option 1: Python venv (Recommended)
+
+This is a lightweight option using Python's built-in virtual environment:
+
+```bash
+# Create a virtual environment
+python -m venv venv
+
+# Activate the virtual environment
+source venv/bin/activate  # On Unix/macOS
+venv\Scripts\activate    # On Windows
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### Option 2: Conda Environment
+
+If you prefer using Conda, you can use the provided `environment.yml`:
+
+```bash
+# Create the conda environment
+conda env create -f environment.yml
+
+# Activate the environment
+conda activate tracking-barbell-exercises
+```
+
+Choose the option that best suits your workflow. The venv approach is recommended for its simplicity and built-in Python support.
+
+## Data Management
+
+This project follows best practices for managing large sensor data files. The `/data/` directory is excluded from version control via `.gitignore`:
 
 ```plaintext
 # exclude data from source control by default
-# /data/
+/data/
 ```
 
 Typically, you want to exclude this folder if it contains either sensitive data that you do not want to add to version control or large files.
