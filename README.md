@@ -1,11 +1,22 @@
-# Data Project Template
+# Fitness Tracker App
+
+# Barbell Exercise Classification and Rep Counter
 
 <a target="_blank" href="https://datalumina.com/">
     <img src="https://img.shields.io/badge/Datalumina-Project%20Template-2856f7" alt="Datalumina Project" />
 </a>
 
-## Cookiecutter Data Science
-This project template is a simplified version of the [Cookiecutter Data Science](https://cookiecutter-data-science.drivendata.org) template, created to suit the needs of Datalumina and made available as a GitHub template.
+## Project Overview
+
+This project aims to create Python scripts to process, visualize, and model accelerometer and gyroscope data to create a machine learning model that can classify barbell exercises and count repetitions. The system will analyze sensor data to automatically identify different barbell movements and track exercise performance.
+
+<div align="center">
+  <img src="images/barbell_exercises.png" alt="Common barbell exercises: Bench Press, Deadlift, Overhead Press, Barbell Row, and Squat" width="800"/>
+</div>
+
+### Quantified Self
+
+This project aligns with the principles of the Quantified Self movement: "The quantified self is any individual engaged in the self-tracking of any kind of biological, physical, behavioral, or environmental information. The self-tracking is driven by a certain goal of the individual, with a desire to act upon the collected information" (Hoogendoorn, M., & Funk, B., 2018). By tracking and analyzing exercise data, users can gain insights into their workout patterns, improve form, and track progress over time.
 
 ## Adjusting .gitignore
 
@@ -19,6 +30,7 @@ Ensure you adjust the `.gitignore` file according to your project needs. For exa
 Typically, you want to exclude this folder if it contains either sensitive data that you do not want to add to version control or large files.
 
 ## Duplicating the .env File
+
 To set up your environment variables, you need to duplicate the `.env.example` file and rename it to `.env`. You can do this manually or using the following terminal command:
 
 ```bash
@@ -27,7 +39,6 @@ copy .env.example .env # Windows Command Prompt
 ```
 
 This command creates a copy of `.env.example` and names it `.env`, allowing you to configure your environment variables specific to your setup.
-
 
 ## Project Organization
 
@@ -64,16 +75,16 @@ This command creates a copy of `.env.example` and names it `.env`, allowing you 
     │
     ├── features.py             <- Code to create features for modeling
     │
-    │    
-    ├── modeling                
-    │   ├── __init__.py 
-    │   ├── predict.py          <- Code to run model inference with trained models          
+    │
+    ├── modeling
+    │   ├── __init__.py
+    │   ├── predict.py          <- Code to run model inference with trained models
     │   └── train.py            <- Code to train models
     │
-    ├── plots.py                <- Code to create visualizations 
+    ├── plots.py                <- Code to create visualizations
     │
     └── services                <- Service classes to connect with external platforms, tools, or APIs
-        └── __init__.py 
+        └── __init__.py
 ```
 
---------
+---
