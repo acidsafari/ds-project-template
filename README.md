@@ -67,12 +67,7 @@ This project follows best practices for managing large sensor data files. The `/
 /data/
 ```
 
-This is essential because:
-1. Sensor data files can be quite large
-2. Git is not optimized for binary or large data files
-3. The data can be easily downloaded from the source mentioned above
-
-While the data files are excluded, the directory structure is maintained through `.gitkeep` files, making it clear where to place the downloaded data.
+Typically, you want to exclude this folder if it contains either sensitive data that you do not want to add to version control or large files.
 
 ## Duplicating the .env File
 
