@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Tracker Development with Windsurf</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/reset.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/theme/white.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <!-- Title Slide -->
+            <section>
+                <h1>Fitness Tracker Development</h1>
+                <h3>Powered by Windsurf IDE</h3>
+                <p>March 2025</p>
+            </section>
+
+            <!-- Project Overview -->
+            <section>
+                <h2>Project Overview</h2>
+                <div class="project-goals">
+                    <ul>
+                        <li>Barbell Exercise Classification</li>
+                        <li>Repetition Counting</li>
+                        <li>Sensor Data Processing</li>
+                        <li>Machine Learning Implementation</li>
+                    </ul>
+                </div>
+                <aside class="notes">
+                    Project aims to process accelerometer and gyroscope data to identify exercises and count reps
+                </aside>
+            </section>
+
+            <!-- Windsurf Benefits -->
+            <section>
+                <h2>How Windsurf Helps</h2>
+                <div class="benefits-grid">
+                    <div class="benefit">
+                        <h3>🔧 Project Setup</h3>
+                        <p>Automated environment setup and dependency management</p>
+                    </div>
+                    <div class="benefit">
+                        <h3>📝 Interactive Development</h3>
+                        <p>Seamless Jupyter integration for data analysis</p>
+                    </div>
+                    <div class="benefit">
+                        <h3>🤖 AI Assistance</h3>
+                        <p>Intelligent code suggestions and troubleshooting</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Example Interaction 1: Environment Setup -->
+            <section>
+                <h2>Environment Setup</h2>
+                <div class="conversation">
+                    <div class="prompt">
+                        <strong>User:</strong> "Can you help set up the environment for interactive Python development?"
+                    </div>
+                    <div class="response">
+                        <strong>Windsurf:</strong> "I'll help you configure the Jupyter kernel and VS Code settings..."
+                        <pre><code class="bash"># Install Jupyter kernel
+python -m ipykernel install --user --name=tracking-barbell-exercises</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Example Interaction 2: Data Management -->
+            <section>
+                <h2>Smart Data Management</h2>
+                <div class="conversation">
+                    <div class="prompt">
+                        <strong>User:</strong> "Could you write the correct path to the CSV file?"
+                    </div>
+                    <div class="response">
+                        <strong>Windsurf:</strong> "I'll help set up robust path handling for your data files..."
+                        <pre><code class="python">import os
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+ABSOLUTE_DATA_PATH = os.path.join(PROJECT_ROOT, "data", "raw")</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Example Interaction 3: Documentation -->
+            <section>
+                <h2>Documentation Assistance</h2>
+                <div class="conversation">
+                    <div class="prompt">
+                        <strong>User:</strong> "Can you write instructions for interactive Python mode in the README?"
+                    </div>
+                    <div class="response">
+                        <strong>Windsurf:</strong> "I'll add a comprehensive guide to the README..."
+                        <pre><code class="markdown">## Interactive Python Development
+
+This project supports interactive Python development using Jupyter functionality in VS Code...</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Example Interaction 4: Web Development -->
+            <section>
+                <h2>Full-Stack Capabilities</h2>
+                <div class="conversation">
+                    <div class="prompt">
+                        <strong>User:</strong> "Could you create a web presentation for the project?"
+                    </div>
+                    <div class="response">
+                        <strong>Windsurf:</strong> "I'll create a modern presentation using Reveal.js..."
+                        <div class="code-preview">
+                            <p>🎨 HTML + CSS for presentations</p>
+                            <p>🔄 Live preview server</p>
+                            <p>📱 Responsive design</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Closing Slide -->
+            <section>
+                <h2>Why Windsurf?</h2>
+                <div class="closing-points">
+                    <ul>
+                        <li>🤖 AI-Powered Development</li>
+                        <li>📈 Increased Productivity</li>
+                        <li>🔧 Automated Setup & Configuration</li>
+                        <li>📖 Smart Documentation</li>
+                    </ul>
+                    <div class="next-steps">
+                        <p>Start building your next project with Windsurf!</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/reveal.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: true,
+            transition: 'slide',
+            controls: true,
+            progress: true
+        });
+    </script>
+</body>
+</html>

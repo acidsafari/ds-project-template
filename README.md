@@ -58,6 +58,35 @@ conda activate tracking-barbell-exercises
 
 Choose the option that best suits your workflow. The venv approach is recommended for its simplicity and built-in Python support.
 
+## Interactive Python Development
+
+This project supports interactive Python development using Jupyter functionality in VS Code. To set this up:
+
+1. Install the Jupyter kernel for your virtual environment:
+
+```bash
+# With your virtual environment activated
+python -m ipykernel install --user --name=tracking-barbell-exercises
+```
+
+2. Configure VS Code:
+
+   - Press `Cmd+Shift+P` (on macOS) or `Ctrl+Shift+P` (on Windows)
+   - Type "Python: Select Interpreter"
+   - Choose the `tracking-barbell-exercises` environment
+
+3. Enable interactive Python mode:
+
+   - Press `Cmd+Shift+P` (macOS) or `Ctrl+Shift+P` (Windows)
+   - Choose one of:
+     - "Jupyter: Create New Blank Notebook"
+     - "Jupyter: Create Interactive Window"
+     - Click the "Jupyter: Run Current File in Interactive Window" button (top-right corner)
+
+4. Use Shift+Enter to run code cells interactively
+
+Alternatively, you can use traditional Jupyter notebooks located in the `notebooks` directory for data exploration and analysis.
+
 ## Data Management
 
 This project follows best practices for managing large sensor data files. The `/data/` directory is excluded from version control via `.gitignore`:
