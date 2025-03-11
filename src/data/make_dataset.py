@@ -1,5 +1,12 @@
+# -*- coding: utf-8 -*-
+"""
+This module handles data processing for the barbell exercise tracking project.
+Interactive development is supported - use Shift+Enter to run code blocks.
+"""
+
 import pandas as pd
 from glob import glob
+import os
 
 # --------------------------------------------------------------
 # Read single CSV file
@@ -18,51 +25,183 @@ def read_csv_file(file_path):
 DATA_PATH = "data/raw/"  # This will be relative to where you run the notebook from
 
 # You can also use this more robust path that works regardless of where you run from:
-import os
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 ABSOLUTE_DATA_PATH = os.path.join(PROJECT_ROOT, "data", "raw")
 
 # Example usage with an actual file from your dataset:
 EXAMPLE_FILE = 'A-bench-heavy_MetaWear_2019-01-14T14.22.49.165_C42732BE255C_Accelerometer_12.500Hz_1.4.4.csv'
 
+def list_data_files():
+    """List all CSV files in the raw data directory"""
+    return glob(os.path.join(ABSOLUTE_DATA_PATH, '*.csv'))
+
 def load_example_data():
-    """Load an example accelerometer data file"""
+    """Load an example CSV file from the raw data directory"""
     file_path = os.path.join(ABSOLUTE_DATA_PATH, EXAMPLE_FILE)
     return read_csv_file(file_path)
 
-example_read = load_example_data()
-example_read.head()
-
-# --------------------------------------------------------------
-# List all data in data/raw/MetaMotion
-# --------------------------------------------------------------
-
-def list_data_files():
-    return glob(os.path.join(ABSOLUTE_DATA_PATH, '*.csv'))
 # --------------------------------------------------------------
 # Extract features from filename
 # --------------------------------------------------------------
+
+def extract_features_from_filename(file_path: str) -> dict:
+    """
+    Extract features from a MetaWear data file path.
+    Example path: /path/to/data/A-bench-heavy_MetaWear_2019-01-14T14.22.49.165_C42732BE255C_Accelerometer_12.500Hz_1.4.4.csv
+    
+    Args:
+        file_path (str): Full path to the data file
+    
+    Returns:
+        dict: Dictionary containing extracted features
+    """
+    # Extract just the filename from the path
+    filename = os.path.basename(file_path)
+    
+    # Remove .csv extension and split by underscores
+    parts = filename.replace('.csv', '').split('_')
+    
+    # Extract exercise info (e.g., 'A-bench-heavy')
+    exercise_info = parts[0].split('-')
+    participant = exercise_info[0]  # e.g., 'A'
+    exercise_name = exercise_info[1]  # e.g., 'bench'
+    exercise_category = exercise_info[2].rstrip('123')  # e.g., 'heavy'
+    # Option here to gain more features by creating reps, sets, etc.
+    
+    # Extract sensor info
+    sensor_type = parts[4]  # e.g., 'Accelerometer'
+    
+    return {
+        'participant': participant,
+        'exercise_name': exercise_name,
+        'exercise_category': exercise_category,
+        'sensor_type': sensor_type
+    }
+
+# # Test with our example file using full path
+# example_path = os.path.join(ABSOLUTE_DATA_PATH, EXAMPLE_FILE)
+# print(f"Full path: {example_path}")
+# print(f"Extracted filename: {os.path.basename(example_path)}\n")
+
+# features = extract_features_from_filename(example_path)
+
+# # View the extracted features
+# for key, value in features.items():
+#     print(f"{key}: {value}")
+
+
+# --------------------------------------------------------------
+# Create individual dataframes
+# --------------------------------------------------------------
+def create_dataframe_from_file(file_path: str) -> pd.DataFrame:
+    """
+    Create a pandas DataFrame containing:
+    - the data in the .csv file
+    - the metadata extracted from the filename as new columns.
+    
+    Args:
+        file_path (str): Full path to the data file
+        
+    Returns:
+        pd.DataFrame: DataFrame containing data and metadata
+    """
+    # Read the CSV data
+    df = read_csv_file(file_path)
+    
+    # Extract features from filename
+    features = extract_features_from_filename(file_path)
+    
+    # Add features as new columns
+    for feature_name, feature_value in features.items():
+        df[feature_name] = feature_value
+    
+    return df
+
+# Example usage:
+# df = create_dataframe_from_file(os.path.join(ABSOLUTE_DATA_PATH, EXAMPLE_FILE))
+# print("\nDataFrame with features:")
+# print(df.head())
+# print("\nAll columns:")
+# print(df.columns.tolist())
 
 
 # --------------------------------------------------------------
 # Read all files
 # --------------------------------------------------------------
+def create_sensor_dataframes_from_files(filelist: list) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Create two pandas DataFrames, one for accelerometer and one for gyroscope data,
+    containing the data from all files with their respective metadata.
+    A 'set' counter is added to each dataframe starting from 1.
+    
+    Args:
+        filelist (list): List of file paths to process
+        
+    Returns:
+        tuple[pd.DataFrame, pd.DataFrame]: Tuple containing (accelerometer_df, gyroscope_df)
+    """
+    # Initialize empty dataframes for each sensor type
+    acce_df = pd.DataFrame()
+    gyro_df = pd.DataFrame()
+    
+    # Initialize set counters
+    acce_set_counter = 1
+    gyro_set_counter = 1
+    
+    # Process each file
+    for file_path in filelist:
+        # Create dataframe with features
+        df = create_dataframe_from_file(file_path)
+        
+        # Add to respective dataframe based on sensor type
+        if df['sensor_type'].iloc[0] == 'Accelerometer':
+            df['set'] = acce_set_counter
+            acce_df = pd.concat([acce_df, df], ignore_index=True)
+            acce_set_counter += 1
+        elif df['sensor_type'].iloc[0] == 'Gyroscope':
+            df['set'] = gyro_set_counter
+            gyro_df = pd.concat([gyro_df, df], ignore_index=True)
+            gyro_set_counter += 1
+    
+    return acce_df, gyro_df
 
+
+# # TESTING THE FUNCTIONS
+# # Get list of files
+# data_files = glob(os.path.join(ABSOLUTE_DATA_PATH, "*.csv"))
+# print(f"Found {len(data_files)} files")
+
+# # Create sensor dataframes
+# acc_df, gyro_df = create_sensor_dataframes_from_files(data_files)
+
+# print("\nAccelerometer DataFrame:")
+# print(f"- Shape: {acc_df.shape}")
+# print(f"- Number of unique sets: {acc_df['set'].nunique()}")
+# print(f"- Columns: {acc_df.columns.tolist()}")
+# print("\nFirst few rows:")
+# print(acc_df.head())
+
+# print("\nGyroscope DataFrame:")
+# print(f"- Shape: {gyro_df.shape}")
+# print(f"- Number of unique sets: {gyro_df['set'].nunique()}")
+# print(f"- Columns: {gyro_df.columns.tolist()}")
+# print("\nFirst few rows:")
+# print(gyro_df.head())
 
 # --------------------------------------------------------------
 # Working with datetimes
 # --------------------------------------------------------------
+
+acc_df.info()
 
 
 # --------------------------------------------------------------
 # Turn into function
 # --------------------------------------------------------------
 
-
 # --------------------------------------------------------------
 # Merging datasets
 # --------------------------------------------------------------
-
 
 # --------------------------------------------------------------
 # Resample data (frequency conversion)
@@ -71,7 +210,17 @@ def list_data_files():
 # Accelerometer:    12.500HZ
 # Gyroscope:        25.000Hz
 
-
 # --------------------------------------------------------------
 # Export dataset
 # --------------------------------------------------------------
+
+if __name__ == '__main__':
+    # This code will run when executing the file directly
+    # but won't run when importing the file    files = list_data_files()
+    print("Available data files:", files)
+
+# For interactive development (Shift+Enter):
+# Example usage:
+# files = list_data_files()
+# data = load_example_data()
+# data.head()
