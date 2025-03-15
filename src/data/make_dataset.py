@@ -192,32 +192,201 @@ def create_sensor_dataframes_from_files(filelist: list) -> tuple[pd.DataFrame, p
 # Working with datetimes
 # --------------------------------------------------------------
 
-acc_df.info()
+def process_datetime_index(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Convert epoch (ms) column to datetime and set as index.
+    
+    Args:
+        df (pd.DataFrame): DataFrame containing 'epoch (ms)' column
+        
+    Returns:
+        pd.DataFrame: DataFrame with datetime index
+    """
+    # Convert epoch to datetime
+    df.index = pd.to_datetime(df['epoch (ms)'], unit='ms')
+    
+    # Remove index name
+    df.index.name = None
+    
+    return df
+
+def clean_datetime_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Remove datetime-related columns after setting the index.
+    
+    Args:
+        df (pd.DataFrame): DataFrame with datetime index
+        
+    Returns:
+        pd.DataFrame: DataFrame without datetime columns
+    """
+    # List of columns to drop
+    datetime_cols = ['epoch (ms)', 'time (01:00)', 'elapsed (s)']
+    
+    # Drop columns if they exist
+    cols_to_drop = [col for col in datetime_cols if col in df.columns]
+    if cols_to_drop:
+        df = df.drop(columns=cols_to_drop)
+    
+    return df
 
 
-# --------------------------------------------------------------
-# Turn into function
-# --------------------------------------------------------------
+# #Example usage:
+# acc_df = process_datetime_index(acc_df)
+# acc_df = clean_datetime_columns(acc_df)
+# print("\nDataFrame with datetime index:")
+# print(acc_df.head())
+# print("\nColumns after cleaning:")
+# print(acc_df.columns.tolist())
+
+# # Get list of files and create sensor dataframes
+# data_files = glob(os.path.join(ABSOLUTE_DATA_PATH, "*.csv"))
+# acc_df, gyro_df = create_sensor_dataframes_from_files(data_files)
+
+# # Process accelerometer data
+# print("Processing accelerometer data:")
+# print("Before processing:")
+# print(acc_df.head())
+
+# acc_df = process_datetime_index(acc_df)
+# acc_df = clean_datetime_columns(acc_df)
+
+# print("\nAfter processing:")
+# print(acc_df.head())
+# print("\nColumns after cleaning:")
+# print(acc_df.columns.tolist())
+
+# # Process gyroscope data
+# print("\nProcessing gyroscope data:")
+# print("Before processing:")
+# print(gyro_df.head())
+
+# gyro_df = process_datetime_index(gyro_df)
+# gyro_df = clean_datetime_columns(gyro_df)
+
+# print("\nAfter processing:")
+# print(gyro_df.head())
+# print("\nColumns after cleaning:")
+# print(gyro_df.columns.tolist())
 
 # --------------------------------------------------------------
 # Merging datasets
 # --------------------------------------------------------------
 
+def merge_sensor_dataframes(acc_df: pd.DataFrame, gyro_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Merge accelerometer and gyroscope dataframes based on their datetime index.
+    Takes only the first three columns from accelerometer data and all from gyroscope.
+    
+    Args:
+        acc_df (pd.DataFrame): Accelerometer DataFrame with datetime index
+        gyro_df (pd.DataFrame): Gyroscope DataFrame with datetime index
+        
+    Returns:
+        pd.DataFrame: Merged DataFrame containing both sensor data
+    """
+    # Select only first three columns from accelerometer (excluding metadata)
+    acc_sensor_cols = [col for col in acc_df.columns 
+                      if col not in ['participant', 'exercise_name', 'exercise_category', 'set', 'sensor_type']][:3]
+    acc_df_subset = acc_df[acc_sensor_cols]
+    
+    # Combine metadata with sensor data
+    merged_df = pd.concat([acc_df_subset, gyro_df], axis=1).drop(columns=['sensor_type'])
+    
+    # Rename columns
+    merged_df.columns = ['acc_x', 'acc_y', 'acc_z', 'gyro_x', 'gyro_y', 'gyro_z', 'participant', 'exercise_name', 'exercise_category', 'set']
+    
+    return merged_df
+
+# # Example usage:
+# # Process and merge sensor dataframes
+# # Process and merge sensor dataframes
+# data_files = glob(os.path.join(ABSOLUTE_DATA_PATH, "*.csv"))
+# acc_df, gyro_df = create_sensor_dataframes_from_files(data_files)
+
+# # Process datetime for both dataframes
+# acc_df = process_datetime_index(acc_df)
+# acc_df = clean_datetime_columns(acc_df)
+# gyro_df = process_datetime_index(gyro_df)
+# gyro_df = clean_datetime_columns(gyro_df)
+
+# # Merge dataframes
+# merged_df = merge_sensor_dataframes(acc_df, gyro_df)
+
+# print("Merged DataFrame info:")
+# print(merged_df.info())
+# print("\nFirst few rows:")
+# print(merged_df.head())
+# print("\nColumns:")
+# print(merged_df.columns.tolist())
+
+# Process and merge sensor dataframes
+data_files = glob(os.path.join(ABSOLUTE_DATA_PATH, "*.csv"))
+acc_df, gyro_df = create_sensor_dataframes_from_files(data_files)
+
+# Process datetime for both dataframes
+acc_df = process_datetime_index(acc_df)
+acc_df = clean_datetime_columns(acc_df)
+gyro_df = process_datetime_index(gyro_df)
+gyro_df = clean_datetime_columns(gyro_df)
+
+# Merge dataframes
+merged_df = merge_sensor_dataframes(acc_df, gyro_df)
+
+print("Merged DataFrame info:")
+print(merged_df.info())
+print("\nFirst few rows:")
+print(merged_df.head())
+print("\nColumns in order:")
+print(merged_df.columns.tolist())
+
 # --------------------------------------------------------------
 # Resample data (frequency conversion)
+# Accelerometer:    12.500HZ 8/s
+# Gyroscope:        25.000HZ 4/s
 # --------------------------------------------------------------
 
-# Accelerometer:    12.500HZ
-# Gyroscope:        25.000Hz
+# Resample accelerometer and gyroscope data
+sampling = {
+    'acc_x': 'mean',
+    'acc_y': 'mean', 
+    'acc_z': 'mean', 
+    'gyro_x': 'mean', 
+    'gyro_y': 'mean', 
+    'gyro_z': 'mean', 
+    'participant': 'last', 
+    'exercise_name': 'last', 
+    'exercise_category': 'last', 
+    'set': 'last'
+}
+
+# This results in a large df
+# resampled_df = merged_df.resample(rule='200ms').apply(sampling)
+
+# Split by day - trick to reduce the memory usage
+days = [g for n, g in merged_df.groupby(pd.Grouper(freq='D'))]
+
+resampled_df = pd.concat([df.resample(rule='200ms').apply(sampling).dropna() for df in days])
+
+resampled_df["set"] = resampled_df["set"].astype(int)
+
+# # Testing results
+# print("Resampled DataFrame info:")
+# print(resampled_df.info())
+# print("\nFirst few rows:")
+# print(resampled_df.head())
+# print("\nColumns in order:")
+# print(resampled_df.columns.tolist())
 
 # --------------------------------------------------------------
 # Export dataset
 # --------------------------------------------------------------
 
-if __name__ == '__main__':
-    # This code will run when executing the file directly
-    # but won't run when importing the file    files = list_data_files()
-    print("Available data files:", files)
+
+# if __name__ == '__main__':
+#     # This code will run when executing the file directly
+#     # but won't run when importing the file    files = list_data_files()
+#     print("Available data files:", files)
 
 # For interactive development (Shift+Enter):
 # Example usage:
