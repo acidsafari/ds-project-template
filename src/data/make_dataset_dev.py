@@ -78,6 +78,17 @@ def extract_features_from_filename(file_path: str) -> dict:
         'sensor_type': sensor_type
     }
 
+# # Test with our example file using full path
+# example_path = os.path.join(ABSOLUTE_DATA_PATH, EXAMPLE_FILE)
+# print(f"Full path: {example_path}")
+# print(f"Extracted filename: {os.path.basename(example_path)}\n")
+
+# features = extract_features_from_filename(example_path)
+
+# # View the extracted features
+# for key, value in features.items():
+#     print(f"{key}: {value}")
+
 
 # --------------------------------------------------------------
 # Create individual dataframes
@@ -105,6 +116,13 @@ def create_dataframe_from_file(file_path: str) -> pd.DataFrame:
         df[feature_name] = feature_value
     
     return df
+
+# Example usage:
+# df = create_dataframe_from_file(os.path.join(ABSOLUTE_DATA_PATH, EXAMPLE_FILE))
+# print("\nDataFrame with features:")
+# print(df.head())
+# print("\nAll columns:")
+# print(df.columns.tolist())
 
 
 # --------------------------------------------------------------
@@ -147,6 +165,28 @@ def create_sensor_dataframes_from_files(filelist: list) -> tuple[pd.DataFrame, p
     
     return acce_df, gyro_df
 
+
+# # TESTING THE FUNCTIONS
+# # Get list of files
+# data_files = glob(os.path.join(ABSOLUTE_DATA_PATH, "*.csv"))
+# print(f"Found {len(data_files)} files")
+
+# # Create sensor dataframes
+# acc_df, gyro_df = create_sensor_dataframes_from_files(data_files)
+
+# print("\nAccelerometer DataFrame:")
+# print(f"- Shape: {acc_df.shape}")
+# print(f"- Number of unique sets: {acc_df['set'].nunique()}")
+# print(f"- Columns: {acc_df.columns.tolist()}")
+# print("\nFirst few rows:")
+# print(acc_df.head())
+
+# print("\nGyroscope DataFrame:")
+# print(f"- Shape: {gyro_df.shape}")
+# print(f"- Number of unique sets: {gyro_df['set'].nunique()}")
+# print(f"- Columns: {gyro_df.columns.tolist()}")
+# print("\nFirst few rows:")
+# print(gyro_df.head())
 
 # --------------------------------------------------------------
 # Working with datetimes
@@ -191,6 +231,44 @@ def clean_datetime_columns(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+# #Example usage:
+# acc_df = process_datetime_index(acc_df)
+# acc_df = clean_datetime_columns(acc_df)
+# print("\nDataFrame with datetime index:")
+# print(acc_df.head())
+# print("\nColumns after cleaning:")
+# print(acc_df.columns.tolist())
+
+# # Get list of files and create sensor dataframes
+# data_files = glob(os.path.join(ABSOLUTE_DATA_PATH, "*.csv"))
+# acc_df, gyro_df = create_sensor_dataframes_from_files(data_files)
+
+# # Process accelerometer data
+# print("Processing accelerometer data:")
+# print("Before processing:")
+# print(acc_df.head())
+
+# acc_df = process_datetime_index(acc_df)
+# acc_df = clean_datetime_columns(acc_df)
+
+# print("\nAfter processing:")
+# print(acc_df.head())
+# print("\nColumns after cleaning:")
+# print(acc_df.columns.tolist())
+
+# # Process gyroscope data
+# print("\nProcessing gyroscope data:")
+# print("Before processing:")
+# print(gyro_df.head())
+
+# gyro_df = process_datetime_index(gyro_df)
+# gyro_df = clean_datetime_columns(gyro_df)
+
+# print("\nAfter processing:")
+# print(gyro_df.head())
+# print("\nColumns after cleaning:")
+# print(gyro_df.columns.tolist())
+
 # --------------------------------------------------------------
 # Merging datasets
 # --------------------------------------------------------------
@@ -220,6 +298,27 @@ def merge_sensor_dataframes(acc_df: pd.DataFrame, gyro_df: pd.DataFrame) -> pd.D
     
     return merged_df
 
+# # Example usage:
+# # Process and merge sensor dataframes
+# # Process and merge sensor dataframes
+# data_files = glob(os.path.join(ABSOLUTE_DATA_PATH, "*.csv"))
+# acc_df, gyro_df = create_sensor_dataframes_from_files(data_files)
+
+# # Process datetime for both dataframes
+# acc_df = process_datetime_index(acc_df)
+# acc_df = clean_datetime_columns(acc_df)
+# gyro_df = process_datetime_index(gyro_df)
+# gyro_df = clean_datetime_columns(gyro_df)
+
+# # Merge dataframes
+# merged_df = merge_sensor_dataframes(acc_df, gyro_df)
+
+# print("Merged DataFrame info:")
+# print(merged_df.info())
+# print("\nFirst few rows:")
+# print(merged_df.head())
+# print("\nColumns:")
+# print(merged_df.columns.tolist())
 
 # Process and merge sensor dataframes
 data_files = glob(os.path.join(ABSOLUTE_DATA_PATH, "*.csv"))
@@ -242,6 +341,19 @@ resampled_df["set"] = resampled_df["set"].astype(int)
 # Save to pickle
 save_to_pickle(resampled_df, "sensor_data_resampled.pkl")
 
+# # Verify we can load it back
+# test_df = pd.read_pickle(os.path.join(PROJECT_ROOT, "data", "interim", "sensor_data_resampled.pkl"))
+# print("\nLoaded DataFrame info:")
+# print(test_df.info())
+# print("\nFirst few rows:")
+# print(test_df.head())
+# print("\nColumns in order:")
+# print(test_df.columns.tolist())
+
+# if __name__ == '__main__':
+#     # This code will run when executing the file directly
+#     # but won't run when importing the file    files = list_data_files()
+#     print("Available data files:", files)
 
 def create_processed_dataset() -> pd.DataFrame:
     """
@@ -270,6 +382,24 @@ def create_processed_dataset() -> pd.DataFrame:
     
     return resampled_df
 
+if __name__ == '__main__':
+    # Create and save the processed dataset
+    print("Creating processed dataset...")
+    processed_df = create_processed_dataset()
+    
+    print("Saving dataset to pickle file...")
+    save_to_pickle(processed_df, "sensor_data_resampled.pkl")
+    
+    print("Done!")
+
+# For interactive development (Shift+Enter):
+# Example usage:
+# processed_df = create_processed_dataset()
+# save_to_pickle(processed_df, "sensor_data_resampled.pkl")
+#
+# # Load back and verify
+# test_df = pd.read_pickle(os.path.join(PROJECT_ROOT, "data", "interim", "sensor_data_resampled.pkl"))
+# print(test_df.info())
 
 # --------------------------------------------------------------
 # Export dataset
@@ -330,23 +460,10 @@ resampled_df = pd.concat([df.resample(rule='200ms').apply(sampling).dropna() for
 # resample set with style fix
 resampled_df["set"] = resampled_df["set"].astype(int)
 
-
-if __name__ == '__main__':
-    # Create and save the processed dataset
-    print("Creating processed dataset...")
-    processed_df = create_processed_dataset()
-    
-    print("Saving dataset to pickle file...")
-    save_to_pickle(processed_df, "sensor_data_resampled.pkl")
-    
-    print("Done!")
-
-
-# For interactive development (Shift+Enter):
-# Example usage:
-# processed_df = create_processed_dataset()
-# save_to_pickle(processed_df, "sensor_data_resampled.pkl")
-#
-# # Load back and verify
-# test_df = pd.read_pickle(os.path.join(PROJECT_ROOT, "data", "interim", "sensor_data_resampled.pkl"))
-# print(test_df.info())
+# Testing results
+print("Resampled DataFrame info:")
+print(resampled_df.info())
+print("\nFirst few rows:")
+print(resampled_df.head())
+print("\nColumns in order:")
+print(resampled_df.columns.tolist())
