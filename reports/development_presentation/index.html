@@ -85,6 +85,52 @@ ABSOLUTE_DATA_PATH = os.path.join(PROJECT_ROOT, "data", "raw")</code></pre>
                 </div>
             </section>
 
+            <!-- Data Processing Pipeline -->
+            <section>
+                <h2>Data Processing Pipeline</h2>
+                <div class="processing-steps">
+                    <div class="step">
+                        <h3>1. File Processing</h3>
+                        <ul>
+                            <li>Extract metadata from filenames</li>
+                            <li>Parse participant, exercise, and set info</li>
+                            <li>Separate accelerometer (12.500Hz) and gyroscope (25.000Hz)</li>
+                        </ul>
+                    </div>
+                    <div class="step">
+                        <h3>2. Datetime Processing</h3>
+                        <ul>
+                            <li>Convert epoch timestamps to datetime index</li>
+                            <li>Clean redundant datetime columns</li>
+                            <li>Ensure consistent timezone handling</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Data Processing Pipeline (continued) -->
+            <section>
+                <h2>Data Processing Pipeline</h2>
+                <div class="processing-steps">
+                    <div class="step">
+                        <h3>3. Sensor Data Merging</h3>
+                        <ul>
+                            <li>Combine accelerometer and gyroscope data</li>
+                            <li>Standardized column names (acc_x, gyro_x, etc.)</li>
+                            <li>Preserve exercise metadata</li>
+                        </ul>
+                    </div>
+                    <div class="step">
+                        <h3>4. Data Resampling</h3>
+                        <ul>
+                            <li>Handle different sampling rates</li>
+                            <li>Resample to 200ms intervals</li>
+                            <li>Process in daily chunks for memory efficiency</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
             <!-- Example Interaction 3: Documentation -->
             <section>
                 <h2>Documentation Assistance</h2>
