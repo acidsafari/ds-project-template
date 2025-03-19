@@ -131,6 +131,52 @@ ABSOLUTE_DATA_PATH = os.path.join(PROJECT_ROOT, "data", "raw")</code></pre>
                 </div>
             </section>
 
+            <!-- Sensor Data Visualization -->
+            <section>
+                <h2>Sensor Data Visualization</h2>
+                <div class="visualization-example">
+                    <div class="prompt-section">
+                        <h3>User Request:</h3>
+                        <div class="prompt-box">
+                            <p>"Create a function that plots both accelerometer and gyroscope data in a dual-plot layout, showing:</p>
+                            <ul>
+                                <li>Accelerometer data in top row</li>
+                                <li>Gyroscope data in bottom row</li>
+                                <li>Shared x-axis for time alignment</li>
+                                <li>Clear labels and legends for each sensor"</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="plot-section">
+                        <img src="images/example_dual_plot.png" alt="Dual Sensor Plot Example">
+                        <p class="caption">Generated dual sensor visualization showing synchronized accelerometer and gyroscope data</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Implementation Details -->
+            <section>
+                <h2>Implementation</h2>
+                <div class="code-example">
+                    <pre><code class="python">def plot_dual_sensor_data(data: pd.DataFrame) -> None:
+    # Create figure with two subplots
+    fig, (ax1, ax2) = plt.subplots(nrows=2, sharex=True, figsize=(20, 10))
+    
+    # Plot accelerometer data
+    acc_cols = [col for col in data.columns if col.startswith('acc')]
+    data[acc_cols].plot(ax=ax1)
+    ax1.set_ylabel('Accelerometer')
+    ax1.legend(labels=['acc_x', 'acc_y', 'acc_z'])
+    
+    # Plot gyroscope data
+    gyro_cols = [col for col in data.columns if col.startswith('gyro')]
+    data[gyro_cols].plot(ax=ax2)
+    ax2.set_ylabel('Gyroscope')
+    ax2.set_xlabel('samples')
+    ax2.legend(labels=['gyro_x', 'gyro_y', 'gyro_z'])</code></pre>
+                </div>
+            </section>
+
             <!-- Example Interaction 3: Documentation -->
             <section>
                 <h2>Documentation Assistance</h2>

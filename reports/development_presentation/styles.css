@@ -210,3 +210,105 @@ code {
     left: 0;
     color: #2196F3;
 }
+
+/* Visualization sections */
+.code-example {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.code-example h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.code-example pre {
+    margin: 10px 0;
+    padding: 15px;
+    background-color: #282c34;
+    border-radius: 6px;
+    overflow-x: auto;
+}
+
+.code-example code {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.9em;
+}
+
+.plot-example {
+    text-align: center;
+    margin: 20px auto;
+    max-width: 95%;
+}
+
+.plot-example img {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.plot-example .caption {
+    color: #666;
+    font-style: italic;
+    margin-top: 10px;
+    font-size: 0.9em;
+}
+
+/* Visualization example layout */
+.visualization-example {
+    display: flex;
+    gap: 30px;
+    margin: 20px 0;
+    align-items: flex-start;
+}
+
+.prompt-section, .plot-section {
+    flex: 1;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.prompt-box {
+    background-color: #fff;
+    border-left: 4px solid #2196F3;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.prompt-box p {
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.prompt-box ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #34495e;
+}
+
+.prompt-box li {
+    margin: 5px 0;
+}
+
+.plot-section img {
+    width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.plot-section .caption {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    margin-top: 10px;
+    font-size: 0.9em;
+}
