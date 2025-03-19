@@ -11,7 +11,7 @@ data from exercise movements. The main functionality includes:
 Example:
     To generate all visualizations:
     ```
-    python visualization/visualize.py
+    python src/visualization/visualize.py
     ```
 """
 
@@ -31,7 +31,7 @@ import matplotlib.pyplot as plt
 # --------------------------------------------------------------
 
 # Get the absolute path to the project root
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 
 # Set plot style
 mpl.style.use("seaborn-v0_8-deep")
