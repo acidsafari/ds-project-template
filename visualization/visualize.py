@@ -1,127 +1,66 @@
-import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib as mpl
-from IPython.display import display
+"""
+Visualization module for sensor data analysis.
+
+This module provides functions to create visualizations of accelerometer and gyroscope
+data from exercise movements. The main functionality includes:
+
+- Dual sensor plots (accelerometer and gyroscope) for each exercise-participant combination
+- High-resolution figure export to reports/figures directory
+- Configurable plot styling and layout
+
+Example:
+    To generate all visualizations:
+    ```
+    python visualization/visualize.py
+    ```
+"""
+
+# --------------------------------------------------------------
+# Imports
+# --------------------------------------------------------------
+
 import os
+import pandas as pd
+import matplotlib as mpl
+# Use non-interactive backend
+mpl.use('Agg')
+import matplotlib.pyplot as plt
 
 # --------------------------------------------------------------
-# Load data
+# Set up paths
 # --------------------------------------------------------------
 
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
-data = pd.read_pickle(os.path.join(PROJECT_ROOT, "data", "interim", "sensor_data_resampled.pkl"))
+# Get the absolute path to the project root
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
-# --------------------------------------------------------------
-# Plot single columns
-# --------------------------------------------------------------
-
-set_df = data[data["set"] == 1]
-plt.plot(set_df["acc_x"])
-
-# plt.plot(set_df["gyro_x"]).reset_index(drop=True)
-
-# --------------------------------------------------------------
-# Plot all exercises
-# --------------------------------------------------------------
-
-for label in data["exercise_name"].unique():
-    subset = data[data["exercise_name"] == label]
-    # display(subset.head(2))
-    fig, ax = plt.subplots()
-    plt.plot(subset["gyro_x"].reset_index(drop=True), 
-            label=label)
-    plt.legend()
-    plt.show()
-
-# To gain a little more definiton
-for label in data["exercise_name"].unique():
-    subset = data[data["exercise_name"] == label]
-    # display(subset.head(2))
-    fig, ax = plt.subplots()
-    plt.plot(subset[:100]["gyro_x"].reset_index(drop=True), 
-            label=label)
-    plt.legend()
-    plt.show()
-
-
-# --------------------------------------------------------------
-# Adjust plot settings - with rcParams
-# --------------------------------------------------------------
-
+# Set plot style
 mpl.style.use("seaborn-v0_8-deep")
-mpl.rcParams["figure.figsize"] = (20, 5)
 mpl.rcParams["figure.dpi"] = 100
+mpl.rcParams["figure.figsize"] = (20, 10)
 
 # --------------------------------------------------------------
-# Compare medium vs. heavy sets
-# --------------------------------------------------------------
-# generating the subset
-category_df = data.query("exercise_name == 'squat'").query("participant == 'A'").reset_index() 
-
-# group plot
-category_df.groupby(["exercise_category"])["acc_y"].plot()
-
-fig, ax = plt.subplots()
-category_df.groupby(["exercise_category"])["acc_y"].plot()
-ax.set_ylabel("acc_y")
-ax.set_xlabel("samples")
-ax.set_title("Squat Exercise - Heavy vs. Medium")
-plt.legend()
-
-"""
-The plot shows how there is more acceleration with the medium load
-as expected
-"""
-
-# --------------------------------------------------------------
-# Compare participants
-# necessary to generalise the models
+# Visualization functions
 # --------------------------------------------------------------
 
-participant_df = data.query("exercise_name == 'bench'").sort_values(by="participant").reset_index()
-
-fig, ax = plt.subplots()
-participant_df.groupby(["participant"])["acc_y"].plot()
-ax.set_ylabel("acc_y")
-ax.set_xlabel("samples")
-ax.set_title("Bench Exercise - Participant Comparison")
-plt.legend()
-
-# --------------------------------------------------------------
-# Plot multiple axis
-# --------------------------------------------------------------
-
-exercise_name = "squat"
-participant = "A"
-all_axis_df = data.query(f"exercise_name == '{exercise_name}'").query(f"participant == '{participant}'").reset_index()
-
-# plot
-fig, ax = plt.subplots()
-all_axis_df[["acc_x", "acc_y", "acc_z"]].plot(ax=ax)
-ax.set_ylabel("acc")
-ax.set_xlabel("samples")
-ax.set_title("Multi Axis - Exercise - Participant Comparison")
-plt.legend()
-
-"""
-We can see the different exercises patterns for each person
-"""
-
-# --------------------------------------------------------------
-# Create a loop to plot all combinations per sensor
-# --------------------------------------------------------------
-
-def plot_sensor_participant_combinations(data: pd.DataFrame) -> None:
+def plot_dual_sensor_data(data: pd.DataFrame) -> None:
     """
-    Plot all combinations of exercise_name and participant for a given sensor type.
+    Create dual plots (accelerometer and gyroscope) for each exercise-participant combination.
+    
+    For each valid combination of exercise and participant, this function creates a figure
+    with two subplots:
+    - Top: Accelerometer data (x, y, z axes)
+    - Bottom: Gyroscope data (x, y, z axes)
+    
+    The plots share an x-axis for time alignment and include clear labels and legends.
+    Generated figures are saved as high-resolution PNGs in the reports/figures directory.
     
     Args:
-        data (pd.DataFrame): The sensor data DataFrame
-        sensor_type (str): Either 'acc' for accelerometer or 'gyro' for gyroscope
+        data (pd.DataFrame): DataFrame containing sensor data with columns:
+            - exercise_name: Name of the exercise
+            - participant: Participant identifier
+            - acc_x, acc_y, acc_z: Accelerometer data
+            - gyro_x, gyro_y, gyro_z: Gyroscope data
     """
-    # Get sensor columns
-    sensor_cols = [col for col in data.columns if col.startswith('acc') or col.startswith('gyro')]
-    
     # Get unique combinations that have data
     combinations = []
     for exercise in data['exercise_name'].unique():
@@ -130,33 +69,71 @@ def plot_sensor_participant_combinations(data: pd.DataFrame) -> None:
             if not subset.empty:
                 combinations.append((exercise, participant))
     
-    # Create plots
-    for exercise, participant in combinations:
+    # Create figures directory if it doesn't exist
+    figures_dir = os.path.join(PROJECT_ROOT, "reports", "figures")
+    os.makedirs(figures_dir, exist_ok=True)
+    
+    print(f"Generating {len(combinations)} plots...")
+    
+    # Create plots for each combination
+    for i, (exercise, participant) in enumerate(combinations, 1):
         # Get data subset
         subset = data.query(f"exercise_name == '{exercise}' and participant == '{participant}'").reset_index()
         
         if not subset.empty:
-            # Create plot
-            fig, ax = plt.subplots()
-            subset[sensor_cols].plot(ax=ax)
+            # Create figure with two subplots
+            fig, (ax1, ax2) = plt.subplots(nrows=2, sharex=True)
             
-            # Set labels and title
-            ax.set_ylabel("sensor reading")
-            ax.set_xlabel("samples")
-            ax.set_title(f"{exercise} ({participant})".title())
-            plt.legend()
+            # Plot accelerometer data
+            acc_cols = [col for col in subset.columns if col.startswith('acc')]
+            subset[acc_cols].plot(ax=ax1)
+            ax1.set_ylabel('Accelerometer')
+            ax1.legend(labels=['acc_x', 'acc_y', 'acc_z'],
+                       loc='upper center',
+                       bbox_to_anchor=(0.5, 1.15),
+                       ncol=3,
+                       fancybox=True,
+                       shadow=True)
             
-
-# Example usage:
-# Plot accelerometer data
-plot_sensor_participant_combinations(data)
-
+            # Plot gyroscope data
+            gyro_cols = [col for col in subset.columns if col.startswith('gyro')]
+            subset[gyro_cols].plot(ax=ax2)
+            ax2.set_ylabel('Gyroscope')
+            ax2.set_xlabel('samples')
+            ax2.legend(labels=['gyro_x', 'gyro_y', 'gyro_z'],
+                       loc='upper center',
+                       bbox_to_anchor=(0.5, 1.15),
+                       ncol=3,
+                       fancybox=True,
+                       shadow=True)
+            
+            # Adjust layout to prevent overlap
+            plt.tight_layout()
+            
+            # Save figure
+            filename = f"{exercise}_({participant})_sensor_data.png"
+            plt.savefig(os.path.join(figures_dir, filename), 
+                       bbox_inches='tight', 
+                       dpi=300)
+            
+            # Close the figure to free memory
+            plt.close(fig)
+            
+            print(f"Progress: {i}/{len(combinations)} - Generated plot for {exercise} ({participant})")
 
 # --------------------------------------------------------------
-# Combine plots in one figure
+# Main execution
 # --------------------------------------------------------------
 
-
-# --------------------------------------------------------------
-# Loop over all combinations and export for both sensors
-# --------------------------------------------------------------
+if __name__ == "__main__":
+    print("Generating sensor data visualizations...")
+    
+    # Load the data
+    print("Loading sensor data...")
+    data = pd.read_pickle(os.path.join(PROJECT_ROOT, "data", "interim", "sensor_data_resampled.pkl"))
+    
+    # Create visualizations
+    print("Creating dual sensor plots for all exercise-participant combinations...")
+    plot_dual_sensor_data(data)
+    
+    print("Visualizations completed! Check the reports/figures directory for the generated plots.")
