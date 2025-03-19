@@ -16,17 +16,17 @@ Note: This is a development file kept for reference. For production use, see vis
 # Imports and Setup
 # --------------------------------------------------------------
 
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from IPython.display import display
-import os
 
 # --------------------------------------------------------------
 # Initial Data Loading and Setup
 # --------------------------------------------------------------
 
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 data = pd.read_pickle(os.path.join(PROJECT_ROOT, "data", "interim", "sensor_data_resampled.pkl"))
 
 # --------------------------------------------------------------

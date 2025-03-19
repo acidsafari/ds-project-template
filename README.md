@@ -122,38 +122,58 @@ This command creates a copy of `.env.example` and names it `.env`, allowing you 
 │
 ├── models             <- Trained and serialized models, model predictions, or model summaries
 │
-├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-│                         the creator's initials, and a short `-` delimited description, e.g.
-│                         `1.0-jqp-initial-data-exploration`
+├── notebooks          <- Jupyter notebooks for exploration and documentation
 │
-├── references         <- Data dictionaries, manuals, and all other explanatory materials
+├── reports           <- Generated analysis and visualizations
+│   ├── figures       <- Generated plots and figures
+│   └── development_presentation <- Project development presentation
 │
-├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-│   └── figures        <- Generated graphics and figures to be used in reporting
+├── src               <- Source code for use in this project
+│   ├── __init__.py   <- Makes src a Python module
+│   ├── data          <- Scripts to process data
+│   ├── features      <- Scripts to turn raw data into features for modeling
+│   ├── models        <- Scripts to train models and make predictions
+│   └── visualization <- Scripts to create exploratory and results visualizations
+│       ├── visualize.py          <- Main visualization module for sensor data
+│       └── visualization_dev.py   <- Development process documentation
 │
-├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-│                         generated with `pip freeze > requirements.txt`
-│
-└── src                         <- Source code for this project
-    │
-    ├── __init__.py             <- Makes src a Python module
-    │
-    ├── config.py               <- Store useful variables and configuration
-    │
-    ├── dataset.py              <- Scripts to download or generate data
-    │
-    ├── features.py             <- Code to create features for modeling
-    │
-    │
-    ├── modeling
-    │   ├── __init__.py
-    │   ├── predict.py          <- Code to run model inference with trained models
-    │   └── train.py            <- Code to train models
-    │
-    ├── plots.py                <- Code to create visualizations
-    │
-    └── services                <- Service classes to connect with external platforms, tools, or APIs
-        └── __init__.py
+├── requirements.txt   <- Project dependencies for pip installation
+├── environment.yml    <- Conda environment configuration
+└── README.md         <- The top-level README for developers using this project
+
+## Data Processing and Visualization
+
+### Sensor Data Visualization
+
+The project includes a comprehensive visualization module for analyzing sensor data:
+
+```bash
+# Generate all sensor data visualizations
+python src/visualization/visualize.py
 ```
+
+This will create dual-plot visualizations for each exercise-participant combination, showing:
+- Accelerometer data (x, y, z axes) in the top panel
+- Gyroscope data (x, y, z axes) in the bottom panel
+
+The generated plots are saved as high-resolution PNG files in the `reports/figures` directory.
+
+### Development Process
+
+The visualization development process is documented in `src/visualization/visualization_dev.py`, which shows the progression from basic plots to the final implementation, including:
+
+1. Initial data exploration with single column plots
+2. Exercise and participant comparisons
+3. Plot styling and configuration improvements
+4. Development of the dual sensor plot functionality
+
+### Best Practices
+
+The visualization module follows several best practices:
+- Uses non-interactive backend for headless execution
+- Saves high-resolution (300 DPI) plots
+- Provides clear progress reporting during plot generation
+- Includes comprehensive docstrings and documentation
+- Follows a clean project structure with separate production and development code
 
 ---
