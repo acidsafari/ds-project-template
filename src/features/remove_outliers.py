@@ -173,6 +173,7 @@ It looks like some of them are showing periods of rest, but
 we need a model that is able to differenciate between them.
 """
 
+
 # --------------------------------------------------------------
 # Chauvenet's criterion (distribution based)
 """According to Chauvenet's criterion we reject a measurement 
@@ -234,11 +235,89 @@ def mark_outliers_chauvenet(dataset, col, C=2):
     return dataset
 
 # Check for normal distribution
+# data[outlier_columns[:3] + ['exercise_name']].plot.hist(
+#     by='exercise_name', figsize=(20,20), layout=(3,3)
+# )
+
+# data[outlier_columns[3:] + ['exercise_name']].plot.hist(
+#     by='exercise_name', figsize=(20,20), layout=(3,3)
+# )
+
+# loop over all columns
+for col in data.select_dtypes(include=["int", "float"]).columns:
+    dataset = mark_outliers_chauvenet(data, col)
+    plot_binary_outliers(dataset=dataset, 
+                         col=col, 
+                         outlier_col=col + "_outlier", 
+                         reset_index=True
+                        )
+
+"""From this we can see that there are a lot less outliers, and
+that we still have a problem with the rest periods.
+
+Before we choose the best method to deal with the outliers, we
+will check LOF (local outlier factor).
+"""
 
 
 # --------------------------------------------------------------
 # Local outlier factor (distance based)
+"""The anomaly score of each sample is called the Local Outlier Factor. 
+It measures the local deviation of the density of a given sample with 
+respect to its neighbors. It is local in that the anomaly score depends 
+on how isolated the object is with respect to the surrounding neighborhood. 
+More precisely, locality is given by k-nearest neighbors, whose distance 
+is used to estimate the local density. By comparing the local density 
+of a sample to the local densities of its neighbors, one can identify 
+samples that have a substantially lower density than their neighbors. 
+These are considered outliers.
+It requires training a model and making predictions.
+KEY POINT: It compares full rows with neighborings rows, 
+unlike previous methods.
+"""
 # --------------------------------------------------------------
+
+# Inserting LOF function
+def mark_outliers_lof(dataset, columns, n=20):
+    """Mark values as outliers using LOF
+
+    Args:
+        dataset (pd.DataFrame): The dataset
+        col (string): The column you want apply outlier detection to
+        n (int, optional): n_neighbors. Defaults to 20.
+    
+    Returns:
+        pd.DataFrame: The original dataframe with an extra boolean column
+        indicating whether the value is an outlier or not.
+    """
+    
+    dataset = dataset.copy()
+
+    lof = LocalOutlierFactor(n_neighbors=n)
+    data = dataset[columns]
+    outliers = lof.fit_predict(data)
+    X_scores = lof.negative_outlier_factor_
+
+    dataset["outlier_lof"] = outliers == -1
+    
+    return dataset, outliers, X_scores
+
+# loop over all columns
+
+dataset, outliers, X_scores = mark_outliers_lof(dataset=data, columns=outlier_columns)
+for col in outlier_columns:
+    plot_binary_outliers(dataset=dataset, 
+                         col=col, 
+                         outlier_col="outlier_lof", 
+                         reset_index=True
+                        )
+
+"""We can definitely see a difference in the detection of outliers.
+We are getting some that are in the middle of the distribution, plus
+a more refined detection on previous edge cases, more closely to 
+each exercise.
+"""
+
 
 # --------------------------------------------------------------
 # Check outliers grouped by label
