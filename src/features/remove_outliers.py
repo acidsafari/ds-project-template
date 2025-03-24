@@ -148,23 +148,23 @@ def mark_outliers_iqr(dataset, col):
     return dataset
 
 # Plot a single column
-col = "acc_x"
-dataset = mark_outliers_iqr(data, col)
+# col = "acc_x"
+# dataset = mark_outliers_iqr(data, col)
 
-plot_binary_outliers(dataset=dataset, 
-                     col=col, 
-                     outlier_col=col + "_outlier", 
-                     reset_index=True
-                    )
+# plot_binary_outliers(dataset=dataset, 
+#                      col=col, 
+#                      outlier_col=col + "_outlier", 
+#                      reset_index=True
+#                     )
 
 # loop over all columns
-for col in data.select_dtypes(include=["int", "float"]).columns:
-    dataset = mark_outliers_iqr(data, col)
-    plot_binary_outliers(dataset=dataset, 
-                         col=col, 
-                         outlier_col=col + "_outlier", 
-                         reset_index=True
-                        )
+# for col in data.select_dtypes(include=["int", "float"]).columns:
+#     dataset = mark_outliers_iqr(data, col)
+#     plot_binary_outliers(dataset=dataset, 
+#                          col=col, 
+#                          outlier_col=col + "_outlier", 
+#                          reset_index=True
+#                         )
 
 """Looking at the values of the outliers, we can see that
 we need to differenciate between exercise types, as some of them
@@ -244,13 +244,13 @@ def mark_outliers_chauvenet(dataset, col, C=2):
 # )
 
 # loop over all columns
-for col in data.select_dtypes(include=["int", "float"]).columns:
-    dataset = mark_outliers_chauvenet(data, col)
-    plot_binary_outliers(dataset=dataset, 
-                         col=col, 
-                         outlier_col=col + "_outlier", 
-                         reset_index=True
-                        )
+# for col in data.select_dtypes(include=["int", "float"]).columns:
+#     dataset = mark_outliers_chauvenet(data, col)
+#     plot_binary_outliers(dataset=dataset, 
+#                          col=col, 
+#                          outlier_col=col + "_outlier", 
+#                          reset_index=True
+#                         )
 
 """From this we can see that there are a lot less outliers, and
 that we still have a problem with the rest periods.
@@ -303,14 +303,13 @@ def mark_outliers_lof(dataset, columns, n=20):
     return dataset, outliers, X_scores
 
 # loop over all columns
-
-dataset, outliers, X_scores = mark_outliers_lof(dataset=data, columns=outlier_columns)
-for col in outlier_columns:
-    plot_binary_outliers(dataset=dataset, 
-                         col=col, 
-                         outlier_col="outlier_lof", 
-                         reset_index=True
-                        )
+# dataset, outliers, X_scores = mark_outliers_lof(dataset=data, columns=outlier_columns)
+# for col in outlier_columns:
+#     plot_binary_outliers(dataset=dataset, 
+#                          col=col, 
+#                          outlier_col="outlier_lof", 
+#                          reset_index=True
+#                         )
 
 """We can definitely see a difference in the detection of outliers.
 We are getting some that are in the middle of the distribution, plus
@@ -323,10 +322,96 @@ each exercise.
 # Check outliers grouped by label
 # --------------------------------------------------------------
 
+# exercise_name = 'bench'
+# for col in outlier_columns:
+#     dataset = mark_outliers_iqr(data[data['exercise_name'] == exercise_name], col)
+#     plot_binary_outliers(dataset=dataset, 
+#                          col=col, 
+#                          outlier_col=col + "_outlier", 
+#                          reset_index=True
+#                         )
+
+# for col in outlier_columns:
+#     dataset = mark_outliers_chauvenet(data[data['exercise_name'] == exercise_name], col)
+#     plot_binary_outliers(dataset=dataset, 
+#                          col=col, 
+#                          outlier_col=col + "_outlier", 
+#                          reset_index=True
+#                         )
+
+# dataset, outliers, X_scores = mark_outliers_lof(data[data['exercise_name'] == exercise_name], outlier_columns)
+# for col in outlier_columns:
+#     plot_binary_outliers(dataset=dataset, 
+#                          col=col, 
+#                          outlier_col="outlier_lof", 
+#                          reset_index=True
+#                         )
+
 # --------------------------------------------------------------
 # Choose method and deal with outliers
 # --------------------------------------------------------------
 
+# # Test on a single column
+# col = 'gyro_x'
+# dataset = mark_outliers_chauvenet(data, col=col)
+# dataset[dataset[col + "_outlier"]]
+
+# # Replace outliers with NaN for the test column
+# dataset.loc[dataset[col + "_outlier"], col] = np.nan
+
+# Function for full implementation (to be reviewed)
+def replace_outliers_with_nan(dataset, columns, C=2):
+    """Replace outliers with NaN in specified columns using Chauvenet's criterion.
+    Outliers are detected separately for each exercise type.
+    
+    Args:
+        dataset (pd.DataFrame): The dataset to process
+        columns (list): List of column names to check for outliers
+        C (int, optional): Parameter for Chauvenet's criterion. Defaults to 2.
+    
+    Returns:
+        pd.DataFrame: A new dataframe with outliers replaced by NaN
+    """
+    # Create a copy to avoid modifying the original dataframe
+    data_without_outliers = dataset.copy()
+    
+    # Get unique exercise names
+    exercise_names = dataset['exercise_name'].unique()
+    
+    # Process each column
+    for col in columns:
+        # Process each exercise type for this column
+        for exercise in exercise_names:
+            # Get data for this exercise
+            exercise_data = dataset[dataset['exercise_name'] == exercise].copy()
+            
+            if len(exercise_data) > 0:  # Only process if we have data
+                # Mark outliers using Chauvenet's criterion
+                marked_data = mark_outliers_chauvenet(exercise_data, col, C)
+                
+                # Replace values where outlier is True with NaN
+                marked_data.loc[marked_data[col + "_outlier"], col] = np.nan
+                
+                # Update the values in the original dataframe
+                data_without_outliers.loc[marked_data.index, col] = marked_data[col]
+    
+    return data_without_outliers
+
+# data_without_outliers.info()
+
+# # Full implementation (commented out for review)
+# data_without_outliers = replace_outliers_with_nan(data, outlier_columns)
+
+# # Print summary of NaN values to see how many outliers were removed
+# print("\nNumber of outliers removed per column:")
+# print(data_without_outliers[outlier_columns].isna().sum())
+
+# Print percentage of data points removed
+# total_points = len(data) * len(outlier_columns)
+# removed_points = data_without_outliers[outlier_columns].isna().sum().sum()
+# print(f"\nPercentage of data points removed: {(removed_points/total_points)*100:.2f}%")
+
 # --------------------------------------------------------------
 # Export new dataframe
 # --------------------------------------------------------------
+
