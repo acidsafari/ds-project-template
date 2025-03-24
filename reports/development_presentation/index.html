@@ -177,6 +177,61 @@ ABSOLUTE_DATA_PATH = os.path.join(PROJECT_ROOT, "data", "raw")</code></pre>
                 </div>
             </section>
 
+            <!-- Outlier Detection Development -->
+            <section>
+                <h2>Outlier Detection Development</h2>
+                <div class="development-approach">
+                    <div class="dev-file">
+                        <h3>Development Strategy</h3>
+                        <ul>
+                            <li>Separate dev and production files</li>
+                            <li>Modular implementation of methods</li>
+                            <li>Easy testing and comparison</li>
+                        </ul>
+                    </div>
+                    <div class="code-structure">
+                        <h3>Code Organization</h3>
+                        <ul>
+                            <li>Core detection functions</li>
+                            <li>Data processing pipeline</li>
+                            <li>Testing framework</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Outlier Detection Methods -->
+            <section>
+                <h2>Outlier Detection Methods</h2>
+                <div class="method-comparison">
+                    <table>
+                        <tr>
+                            <th>Method</th>
+                            <th>Data Removed</th>
+                            <th>Characteristics</th>
+                        </tr>
+                        <tr>
+                            <td>IQR</td>
+                            <td>4.73%</td>
+                            <td>Most aggressive, uniform detection</td>
+                        </tr>
+                        <tr>
+                            <td>Chauvenet</td>
+                            <td>0.34%</td>
+                            <td>Conservative, statistical approach</td>
+                        </tr>
+                        <tr>
+                            <td>LOF</td>
+                            <td>2.26%</td>
+                            <td>Balanced, context-aware detection</td>
+                        </tr>
+                    </table>
+                    <div class="method-notes">
+                        <p>Selected Chauvenet's criterion as default method for its conservative approach</p>
+                    </div>
+                </div>
+            </section>
+
             <!-- Example Interaction 3: Documentation -->
             <section>
                 <h2>Documentation Assistance</h2>

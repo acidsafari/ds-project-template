@@ -312,3 +312,73 @@ code {
     margin-top: 10px;
     font-size: 0.9em;
 }
+
+/* Outlier Detection Development */
+.development-approach {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 2em;
+}
+
+.dev-file, .code-structure {
+    flex: 1;
+    margin: 0 1em;
+    text-align: left;
+}
+
+.dev-file h3, .code-structure h3 {
+    color: #2c3e50;
+    margin-bottom: 0.5em;
+}
+
+.dev-file ul, .code-structure ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.dev-file li, .code-structure li {
+    margin: 0.5em 0;
+    padding-left: 1.5em;
+    position: relative;
+}
+
+.dev-file li:before, .code-structure li:before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: #3498db;
+}
+
+/* Method Comparison Table */
+.method-comparison {
+    margin-top: 2em;
+}
+
+.method-comparison table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2em;
+}
+
+.method-comparison th {
+    background-color: #2c3e50;
+    color: white;
+    padding: 0.75em;
+    text-align: left;
+}
+
+.method-comparison td {
+    padding: 0.75em;
+    border-bottom: 1px solid #ddd;
+}
+
+.method-comparison tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.method-notes {
+    text-align: center;
+    font-style: italic;
+    color: #666;
+    margin-top: 1em;
+}
