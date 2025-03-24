@@ -31,9 +31,13 @@ from sklearn.neighbors import LocalOutlierFactor  # pip install scikit-learn
 # Get the absolute path to the project root
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 
+# Set up file paths
+INTERIM_DATA_PATH = os.path.join(PROJECT_ROOT, "data", "interim")
+INPUT_FILE = "01_sensor_data_resampled.pkl"
+OUTPUT_FILE = "02_data_without_outliers.pkl"
+
 # Load the sensor data
-DATA_PATH = os.path.join(PROJECT_ROOT, "data", "interim", "sensor_data_resampled.pkl")
-data = pd.read_pickle(DATA_PATH)
+data = pd.read_pickle(os.path.join(INTERIM_DATA_PATH, INPUT_FILE))
 
 outlier_columns = ['acc_x', 'acc_y', 'acc_z', 'gyro_x', 'gyro_y', 'gyro_z']
 
@@ -399,6 +403,34 @@ def replace_outliers_with_nan(dataset, columns, C=2):
 
 # data_without_outliers.info()
 
+
+# --------------------------------------------------------------
+# Export new dataframe
+# --------------------------------------------------------------
+
+def export_data(data: pd.DataFrame, filename: str) -> None:
+    """Export DataFrame to a pickle file in the interim data directory.
+    
+    Args:
+        data (pd.DataFrame): The DataFrame to export
+        filename (str): Name of the output file
+    """
+    output_path = os.path.join(INTERIM_DATA_PATH, filename)
+    data.to_pickle(output_path)
+    print(f"\nData exported to: {output_path}")
+    print(f"Shape: {data.shape}")
+
+# Test the export function with a single column
+# col = 'gyro_x'
+# dataset = mark_outliers_chauvenet(data, col=col)
+# dataset.loc[dataset[col + "_outlier"], col] = np.nan
+# export_data(dataset, OUTPUT_FILE)
+
+# Full implementation (commented out for review)
+# data_without_outliers = replace_outliers_with_nan(data, outlier_columns)
+# export_data(data_without_outliers, OUTPUT_FILE)
+
+
 # # Full implementation (commented out for review)
 # data_without_outliers = replace_outliers_with_nan(data, outlier_columns)
 
@@ -410,8 +442,3 @@ def replace_outliers_with_nan(dataset, columns, C=2):
 # total_points = len(data) * len(outlier_columns)
 # removed_points = data_without_outliers[outlier_columns].isna().sum().sum()
 # print(f"\nPercentage of data points removed: {(removed_points/total_points)*100:.2f}%")
-
-# --------------------------------------------------------------
-# Export new dataframe
-# --------------------------------------------------------------
-
