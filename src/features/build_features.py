@@ -53,8 +53,8 @@ def load_cleaned_sensor_data(version: str = 'default') -> pd.DataFrame:
     return pd.read_pickle(file_path)
 
 
-# # Checking data loading
-# data = load_cleaned_sensor_data()
+# Checking data loading
+data = load_cleaned_sensor_data()
 
 # Define predictor columns (sensor data columns)
 predictor_columns = ['acc_x', 'acc_y', 'acc_z', 'gyro_x', 'gyro_y', 'gyro_z']
@@ -155,13 +155,137 @@ functions we imported from the ML4QS course.
 """
 # --------------------------------------------------------------
 
+# Development code for visualization and testing
 # Visualize the signal
 # data[data['set'] == 25]['acc_y'].plot()
 # data[data['set'] == 50]['acc_y'].plot()
 
+# Single set duration
+# duration = data_interpolated[data_interpolated['set'] == 1].index[-1] - data_interpolated[data_interpolated['set'] == 1].index[0]
+# duration = duration.seconds
+
+# # All sets duration
+# for s in data_interpolated['set'].unique():
+#     start = data_interpolated[data_interpolated['set'] == s].index[0]
+#     stop = data_interpolated[data_interpolated['set'] == s].index[-1]
+    
+#     duration = stop - start
+#     duration = duration.seconds
+#     data_interpolated.loc[data_interpolated['set'] == s, 'duration'] = duration
+
+# duration_df = data_interpolated.groupby('exercise_category')['duration'].mean()
+
+# # Calculate average reps per set
+# duration_df.iloc[0] / 5  # First category: 5 reps per set
+# duration_df.iloc[1] / 10 # Second category: 10 reps per set
+
+# Production-ready functions (to be moved to final version)
+def calculate_set_durations(data: pd.DataFrame, round_to_seconds: bool = True) -> pd.DataFrame:
+    """Calculate the duration of each exercise set and add it as a new column.
+    
+    Args:
+        data (pd.DataFrame): The sensor data with datetime index
+        round_to_seconds (bool, optional): Whether to round durations to whole seconds.
+            Defaults to True.
+    
+    Returns:
+        pd.DataFrame: DataFrame with added 'duration' column in seconds
+    """
+    data_with_duration = data.copy()
+    
+    for s in data['set'].unique():
+        set_data = data[data['set'] == s]
+        start = set_data.index[0]
+        stop = set_data.index[-1]
+        
+        duration = (stop - start).total_seconds()
+        if round_to_seconds:
+            duration = round(duration)
+        
+        data_with_duration.loc[data['set'] == s, 'duration'] = duration
+    
+    return data_with_duration
+
+data_with_duration = calculate_set_durations(data_interpolated)
+
+# Calculate average durations
+def get_average_durations(data: pd.DataFrame) -> pd.Series:
+    """Calculate average durations for each exercise category.
+    
+    Args:
+        data (pd.DataFrame): The sensor data with 'duration' and 'exercise_category' columns
+    
+    Returns:
+        pd.Series: Average duration for each exercise category, rounded to 3 decimal places
+    """
+    return data.groupby('exercise_category')['duration'].mean().round(3)
+
+average_durations_df = get_average_durations(data_with_duration)
+
+
+# Test duration calculation if running as main script
+if __name__ == "__main__":
+    print("\n5. Testing set duration calculation:")
+    try:
+        # Load and prepare data
+        data = load_cleaned_sensor_data()
+        data_clean = interpolate_missing_values(data)
+        
+        # Calculate durations
+        data_with_duration = calculate_set_durations(data_clean)
+        
+        # Show some statistics
+        print("\nDuration statistics (seconds):")
+        print(f"Mean duration: {data_with_duration['duration'].mean():.1f}")
+        print(f"Min duration: {data_with_duration['duration'].min():.1f}")
+        print(f"Max duration: {data_with_duration['duration'].max():.1f}")
+        
+        # Show average durations by exercise category
+        avg_durations = get_average_durations(data_with_duration)
+        print("\nAverage durations by exercise category:")
+        print(avg_durations)
+        
+    except Exception as e:
+        print(f"✗ Error during duration calculation test: {str(e)}")
+
+
 # --------------------------------------------------------------
 # Butterworth lowpass filter
+# NO NaN VALUES ALLOWED
 # --------------------------------------------------------------
+
+df_lowpass = data_with_duration.copy()
+LowPass = LowPassFilter()
+
+# Setting parameters
+fs = 1000 / 200 # the sampling frequency we set in section 2
+cutoff = 1.3 # this was optimised in the thesis project
+"""we can play with the cutoff feature in the future, to see the
+effect it has in the model.
+"""
+
+# Checking for one set and column
+df_lowpass = LowPass.low_pass_filter(df_lowpass, 'acc_y', fs, cutoff, order=5)
+
+subset = df_lowpass[df_lowpass['set'] == 45]
+print(subset["exercise_name"][0])
+
+# Visualizing the comparison
+fig, ax = plt.subplots(nrows=2, sharex=True, figsize=(20, 10))
+ax[0].plot(subset['acc_y'].reset_index(drop=True), 
+           label='raw_data')
+ax[1].plot(subset['acc_y_lowpass'].reset_index(drop=True), 
+            label='butterworth_filter')
+ax[0].legend(loc='upper center', bbox_to_anchor=(0.5, 1.15),
+             fancybox=True, shadow=True)
+ax[1].legend(loc='upper center', bbox_to_anchor=(0.5, 1.15),
+            fancybox=True, shadow=True)
+
+# Instead of adding a new column, we can replace the old column
+for col in predictor_columns:
+    df_lowpass = LowPass.low_pass_filter(df_lowpass, col, fs, cutoff, order=5)
+    df_lowpass[col] = df_lowpass[col + '_lowpass']
+    del df_lowpass[col + '_lowpass']
 
 
 # --------------------------------------------------------------
