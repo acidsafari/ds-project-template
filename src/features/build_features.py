@@ -224,29 +224,29 @@ average_durations_df = get_average_durations(data_with_duration)
 
 
 # Test duration calculation if running as main script
-if __name__ == "__main__":
-    print("\n5. Testing set duration calculation:")
-    try:
-        # Load and prepare data
-        data = load_cleaned_sensor_data()
-        data_clean = interpolate_missing_values(data)
+# if __name__ == "__main__":
+#     print("\n5. Testing set duration calculation:")
+#     try:
+#         # Load and prepare data
+#         data = load_cleaned_sensor_data()
+#         data_clean = interpolate_missing_values(data)
         
-        # Calculate durations
-        data_with_duration = calculate_set_durations(data_clean)
+#         # Calculate durations
+#         data_with_duration = calculate_set_durations(data_clean)
         
-        # Show some statistics
-        print("\nDuration statistics (seconds):")
-        print(f"Mean duration: {data_with_duration['duration'].mean():.1f}")
-        print(f"Min duration: {data_with_duration['duration'].min():.1f}")
-        print(f"Max duration: {data_with_duration['duration'].max():.1f}")
+#         # Show some statistics
+#         print("\nDuration statistics (seconds):")
+#         print(f"Mean duration: {data_with_duration['duration'].mean():.1f}")
+#         print(f"Min duration: {data_with_duration['duration'].min():.1f}")
+#         print(f"Max duration: {data_with_duration['duration'].max():.1f}")
         
-        # Show average durations by exercise category
-        avg_durations = get_average_durations(data_with_duration)
-        print("\nAverage durations by exercise category:")
-        print(avg_durations)
+#         # Show average durations by exercise category
+#         avg_durations = get_average_durations(data_with_duration)
+#         print("\nAverage durations by exercise category:")
+#         print(avg_durations)
         
-    except Exception as e:
-        print(f"✗ Error during duration calculation test: {str(e)}")
+#     except Exception as e:
+#         print(f"✗ Error during duration calculation test: {str(e)}")
 
 
 # --------------------------------------------------------------
@@ -254,38 +254,90 @@ if __name__ == "__main__":
 # NO NaN VALUES ALLOWED
 # --------------------------------------------------------------
 
-df_lowpass = data_with_duration.copy()
-LowPass = LowPassFilter()
+# df_lowpass = data_with_duration.copy()
+# LowPass = LowPassFilter()
 
-# Setting parameters
-fs = 1000 / 200 # the sampling frequency we set in section 2
-cutoff = 1.3 # this was optimised in the thesis project
-"""we can play with the cutoff feature in the future, to see the
-effect it has in the model.
-"""
+# # Setting parameters
+# fs = 1000 / 200 # the sampling frequency we set in section 2
+# cutoff = 1.3 # this was optimised in the thesis project
+# """we can play with the cutoff feature in the future, to see the
+# effect it has in the model.
+# """
 
-# Checking for one set and column
-df_lowpass = LowPass.low_pass_filter(df_lowpass, 'acc_y', fs, cutoff, order=5)
+# # Checking for one set and column
+# df_lowpass = LowPass.low_pass_filter(df_lowpass, 'acc_y', fs, cutoff, order=5)
 
-subset = df_lowpass[df_lowpass['set'] == 45]
-print(subset["exercise_name"][0])
+# subset = df_lowpass[df_lowpass['set'] == 45]
+# print(subset["exercise_name"][0])
 
-# Visualizing the comparison
-fig, ax = plt.subplots(nrows=2, sharex=True, figsize=(20, 10))
-ax[0].plot(subset['acc_y'].reset_index(drop=True), 
-           label='raw_data')
-ax[1].plot(subset['acc_y_lowpass'].reset_index(drop=True), 
-            label='butterworth_filter')
-ax[0].legend(loc='upper center', bbox_to_anchor=(0.5, 1.15),
-             fancybox=True, shadow=True)
-ax[1].legend(loc='upper center', bbox_to_anchor=(0.5, 1.15),
-            fancybox=True, shadow=True)
+# # Visualizing the comparison
+# fig, ax = plt.subplots(nrows=2, sharex=True, figsize=(20, 10))
+# ax[0].plot(subset['acc_y'].reset_index(drop=True), 
+#            label='raw_data')
+# ax[1].plot(subset['acc_y_lowpass'].reset_index(drop=True), 
+#             label='butterworth_filter')
+# ax[0].legend(loc='upper center', bbox_to_anchor=(0.5, 1.15),
+#              fancybox=True, shadow=True)
+# ax[1].legend(loc='upper center', bbox_to_anchor=(0.5, 1.15),
+#             fancybox=True, shadow=True)
 
-# Instead of adding a new column, we can replace the old column
-for col in predictor_columns:
-    df_lowpass = LowPass.low_pass_filter(df_lowpass, col, fs, cutoff, order=5)
-    df_lowpass[col] = df_lowpass[col + '_lowpass']
-    del df_lowpass[col + '_lowpass']
+# # Instead of adding a new column, we can replace the old column
+# for col in predictor_columns:
+#     df_lowpass = LowPass.low_pass_filter(df_lowpass, col, fs, cutoff, order=5)
+#     df_lowpass[col] = df_lowpass[col + '_lowpass']
+#     del df_lowpass[col + '_lowpass']
+
+# Production-ready function (to be moved to final version)
+def apply_butterworth_filter(data: pd.DataFrame, 
+                           columns: list = None, 
+                           sampling_freq: float = 5.0,  # 1000/200 Hz
+                           cutoff_freq: float = 1.3,    # Optimized value
+                           order: int = 5) -> pd.DataFrame:
+    """Apply Butterworth lowpass filter to the specified columns.
+    
+    Args:
+        data (pd.DataFrame): The sensor data
+        columns (list, optional): List of columns to filter. If None, uses all predictor columns.
+        sampling_freq (float, optional): Sampling frequency in Hz. Defaults to 5.0 (1000/200).
+        cutoff_freq (float, optional): Cutoff frequency in Hz. Defaults to 1.3.
+        order (int, optional): Order of the Butterworth filter. Defaults to 5.
+    
+    Returns:
+        pd.DataFrame: DataFrame with filtered sensor data
+    """
+    if columns is None:
+        columns = predictor_columns
+    
+    # Create a copy to avoid modifying the original data
+    filtered_data = data.copy()
+    
+    # Apply lowpass filter to each column
+    for col in columns:
+        filtered_data = LowPass.low_pass_filter(filtered_data, col, 
+                                              sampling_freq, cutoff_freq, 
+                                              order=order)
+        # Replace original column with filtered data
+        filtered_data[col] = filtered_data[col + '_lowpass']
+        del filtered_data[col + '_lowpass']
+    
+    return filtered_data
+
+# Apply the filter to our data
+df_lowpass = apply_butterworth_filter(data_with_duration)
+
+# subset = df_lowpass[df_lowpass['set'] == 45]
+# print(subset["exercise_name"][0])
+
+# # # Visualizing the comparison
+# fig, ax = plt.subplots(nrows=2, sharex=True, figsize=(20, 10))
+# ax[0].plot(subset['acc_y'].reset_index(drop=True), 
+#            label='raw_data')
+# ax[1].plot(subset['acc_y_lowpass'].reset_index(drop=True), 
+#             label='butterworth_filter')
+# ax[0].legend(loc='upper center', bbox_to_anchor=(0.5, 1.15),
+#              fancybox=True, shadow=True)
+# ax[1].legend(loc='upper center', bbox_to_anchor=(0.5, 1.15),
+#             fancybox=True, shadow=True)
 
 
 # --------------------------------------------------------------
