@@ -97,3 +97,6 @@ target/
 
 # Generated figures
 reports/figures/
+
+# Interactive notebooks
+notebooks/Interactive-*
