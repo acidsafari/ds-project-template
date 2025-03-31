@@ -254,8 +254,9 @@ average_durations_df = get_average_durations(data_with_duration)
 # NO NaN VALUES ALLOWED
 # --------------------------------------------------------------
 
-# df_lowpass = data_with_duration.copy()
-# LowPass = LowPassFilter()
+# Starting the class
+df_lowpass = data_with_duration.copy()
+LowPass = LowPassFilter()
 
 # # Setting parameters
 # fs = 1000 / 200 # the sampling frequency we set in section 2
@@ -342,7 +343,32 @@ df_lowpass = apply_butterworth_filter(data_with_duration)
 
 # --------------------------------------------------------------
 # Principal component analysis PCA
+""" We are going to use the functions in DataTransformation.py
+for this.
+"""
 # --------------------------------------------------------------
+
+# Creating the class
+df_pca = df_lowpass.copy()
+pca = PrincipalComponentAnalysis()
+
+pc_values = pca.determine_pc_explained_variance(df_pca, predictor_columns)
+
+# We are going to find the elbow value, optimal
+# plt.figure(figsize=(10, 6))
+# plt.plot(range(1, len(predictor_columns) + 1), pc_values)
+# plt.xlabel('Number of Principal Components')
+# plt.ylabel('Explained Variance')
+# plt.title('Explained Variance by Principal Components')
+# plt.show()
+
+# Using 3 components
+df_pca = pca.apply_pca(df_pca, predictor_columns, 3)
+
+# We are going to keep the original columns for now
+# Checking an example
+# subset = df_pca[df_pca['set'] == 35]
+# subset[['pca_1', 'pca_2', 'pca_3']].plot()
 
 
 # --------------------------------------------------------------
