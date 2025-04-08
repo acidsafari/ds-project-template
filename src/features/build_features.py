@@ -5,6 +5,7 @@ from DataTransformation import LowPassFilter, PrincipalComponentAnalysis
 from TemporalAbstraction import NumericalAbstraction
 import os
 from typing import Optional
+from FrequencyAbstraction import FourierTransformation
 
 
 # --------------------------------------------------------------
@@ -49,8 +50,13 @@ def load_cleaned_sensor_data(version: str = 'default') -> pd.DataFrame:
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"Data file not found: {file_path}")
     
-    # Load and return the data
-    return pd.read_pickle(file_path)
+    # Load the data
+    data = pd.read_pickle(file_path)
+    
+    # Set the index name
+    data.index.name = 'epoch (ms)'
+    
+    return data
 
 
 # Checking data loading
@@ -348,11 +354,12 @@ for this.
 """
 # --------------------------------------------------------------
 
+# Development code
 # Creating the class
-df_pca = df_lowpass.copy()
-pca = PrincipalComponentAnalysis()
+# df_pca = df_lowpass.copy()
+# pca = PrincipalComponentAnalysis()
 
-pc_values = pca.determine_pc_explained_variance(df_pca, predictor_columns)
+# pc_values = pca.determine_pc_explained_variance(df_pca, predictor_columns)
 
 # We are going to find the elbow value, optimal
 # plt.figure(figsize=(10, 6))
@@ -363,27 +370,271 @@ pc_values = pca.determine_pc_explained_variance(df_pca, predictor_columns)
 # plt.show()
 
 # Using 3 components
-df_pca = pca.apply_pca(df_pca, predictor_columns, 3)
+# df_pca = pca.apply_pca(df_pca, predictor_columns, 3)
 
 # We are going to keep the original columns for now
 # Checking an example
 # subset = df_pca[df_pca['set'] == 35]
 # subset[['pca_1', 'pca_2', 'pca_3']].plot()
 
+# Production-ready function (to be moved to final version)
+def create_pca_dataframe(data: pd.DataFrame, 
+                        columns: list = None, 
+                        n_components: int = 3) -> pd.DataFrame:
+    """Apply Principal Component Analysis to the sensor data.
+    
+    Args:
+        data (pd.DataFrame): The sensor data to transform
+        columns (list, optional): List of columns to use for PCA. 
+            If None, uses all predictor columns. Defaults to None.
+        n_components (int, optional): Number of principal components to keep.
+            Defaults to 3.
+    
+    Returns:
+        pd.DataFrame: DataFrame with added PCA columns ('pca_1', 'pca_2', etc.)
+        while preserving original columns
+    """
+    if columns is None:
+        columns = predictor_columns
+    
+    # Create a copy to avoid modifying the original data
+    df_pca = data.copy()
+    
+    # Initialize PCA
+    pca = PrincipalComponentAnalysis()
+    
+    # Calculate explained variance (useful for analysis)
+    pc_values = pca.determine_pc_explained_variance(df_pca, columns)
+    
+    # Apply PCA transformation
+    df_pca = pca.apply_pca(df_pca, columns, n_components)
+    
+    return df_pca
+
+# Apply PCA to our filtered data
+df_with_pca = create_pca_dataframe(df_lowpass)
+
 
 # --------------------------------------------------------------
 # Sum of squares attributes
 # --------------------------------------------------------------
 
+# Development code
+# df_square = df_pca.copy()
+
+# acc_r = df_square['acc_x']**2 + df_square['acc_y']**2 + df_square['acc_z']**2
+# gyro_r = df_square['gyro_x']**2 + df_square['gyro_y']**2 + df_square['gyro_z']**2
+
+# df_square['acc_r'] = np.sqrt(acc_r)
+# df_square['gyro_r'] = np.sqrt(gyro_r)
+
+# subset = df_square[df_square['set'] == 14]
+# subset[['acc_r', 'gyro_r']].plot(subplots=True, figsize=(10, 6))
+
+"""we will look at the impact of this in the future
+the reason why it could be good to use is that it does not
+take into consideration of the direction of the movement
+"""
+
+# Production-ready function (to be moved to final version)
+def calculate_squared_magnitudes(data: pd.DataFrame) -> pd.DataFrame:
+    """Calculate the squared magnitudes (Euclidean norm) for accelerometer and gyroscope data.
+    
+    This function computes the root sum of squares for both accelerometer and gyroscope
+    measurements, which gives a direction-independent magnitude of the motion.
+    
+    Args:
+        data (pd.DataFrame): The sensor data containing accelerometer and gyroscope measurements
+    
+    Returns:
+        pd.DataFrame: DataFrame with added 'acc_r' and 'gyro_r' columns containing
+        the magnitude of acceleration and angular velocity respectively
+    """
+    # Create a copy to avoid modifying the original data
+    df_square = data.copy()
+    
+    # Calculate squared sums
+    acc_r = (df_square['acc_x']**2 + 
+             df_square['acc_y']**2 + 
+             df_square['acc_z']**2)
+    
+    gyro_r = (df_square['gyro_x']**2 + 
+              df_square['gyro_y']**2 + 
+              df_square['gyro_z']**2)
+    
+    # Add root sum of squares columns
+    df_square['acc_r'] = np.sqrt(acc_r)
+    df_square['gyro_r'] = np.sqrt(gyro_r)
+    
+    return df_square
+
+# Apply squared magnitudes calculation to our PCA data
+df_with_squares = calculate_squared_magnitudes(df_with_pca)
 
 # --------------------------------------------------------------
 # Temporal abstraction
+
+"""We basically are going to calculate the rolling avg
+with a window size and input that as a feature, which we can
+use with all kinds of statistical features.
+We create this using the NumericalAbstraction class.
+"""
 # --------------------------------------------------------------
+
+# Development code
+df_temporal = df_with_squares.copy()
+num_abstraction = NumericalAbstraction()
+
+predictor_columns = predictor_columns + ['acc_r', 'gyro_r']
+
+window_size = int(1000 / 200) # 5 seconds
+
+# This will introduce errors in the data, mixing different exercises
+for col in predictor_columns:
+    df_temporal = num_abstraction.abstract_numerical(df_temporal, [col], window_size, 'mean')
+    df_temporal = num_abstraction.abstract_numerical(df_temporal, [col], window_size, 'std')
+    
+# To calculate for each set
+df_temporal_list = []
+
+for set in df_temporal['set'].unique():
+    subset = df_temporal[df_temporal['set'] == set].copy()
+    for col in predictor_columns:
+        subset = num_abstraction.abstract_numerical(subset, [col], window_size, 'mean')
+        subset = num_abstraction.abstract_numerical(subset, [col], window_size, 'std')
+    df_temporal_list.append(subset)
+
+# Combine all sets back into a single DataFrame
+df_temporal = pd.concat(df_temporal_list)
+df_temporal.info()
+
+subset[['acc_y', 'acc_y_temp_mean_ws_5', 'acc_y_temp_std_ws_5']].plot()
+subset[['gyro_y', 'gyro_y_temp_mean_ws_5', 'gyro_y_temp_std_ws_5']].plot()
+
+# Production-ready function
+def create_temporal_features(data: pd.DataFrame, 
+                           columns: list = predictor_columns,
+                           window_size: int = 5,
+                           aggregation_functions: list = None) -> pd.DataFrame:
+    """Create temporal features for sensor data using rolling windows.
+    
+    The function calculates temporal features separately for each exercise set to avoid
+    mixing data between different exercises. Features are calculated using a rolling
+    window approach.
+    
+    Args:
+        data (pd.DataFrame): The sensor data to process
+        columns (list, optional): List of columns to create features for.
+            If None, uses predictor columns + magnitude columns. Defaults to None.
+        window_size (int, optional): Size of the rolling window. Defaults to 5.
+        aggregation_functions (list, optional): List of aggregation functions to apply.
+            Available options: ['mean', 'max', 'min', 'median', 'std'].
+            Defaults to ['mean', 'std'].
+    
+    Returns:
+        pd.DataFrame: DataFrame with added temporal features for each column:
+            - {col}_temp_{function}_ws_{window_size}: Rolling aggregation
+    """
+    # Create a copy of the columns list to avoid modifying the original
+    if columns is predictor_columns:
+        columns = predictor_columns.copy()
+        if 'acc_r' in data.columns and 'gyro_r' in data.columns:
+            columns.extend(['acc_r', 'gyro_r'])
+    
+    # Initialize abstraction class
+    num_abstraction = NumericalAbstraction()
+    
+    # Process each set separately to avoid mixing exercise data
+    df_temporal_list = []
+    
+    for set_id in data['set'].unique():
+        # Get data for this set
+        subset = data[data['set'] == set_id].copy()
+        
+        # Set default aggregation functions if none provided
+        if aggregation_functions is None:
+            aggregation_functions = ['mean', 'std']
+            
+        # Calculate temporal features for each column
+        for col in columns:
+            for agg_func in aggregation_functions:
+                subset = num_abstraction.abstract_numerical(subset, [col], window_size, agg_func)
+        
+        df_temporal_list.append(subset)
+    
+    # Combine all sets while preserving the index
+    df_temporal = pd.concat(df_temporal_list, axis=0)
+    
+    # Sort by the original index to maintain time series order
+    df_temporal = df_temporal.sort_index()
+    
+    return df_temporal
+
+# Apply temporal feature creation to our squared magnitudes data
+df_with_temporal = create_temporal_features(df_with_squares)
+
+# df_with_temporal.info()
+
+# # Visualise results
+# subset = df_with_temporal[df_with_temporal['set'] == 15]
+# subset[['acc_y', 'acc_y_temp_mean_ws_5', 'acc_y_temp_std_ws_5']].plot()
+# subset[['gyro_y', 'gyro_y_temp_mean_ws_5', 'gyro_y_temp_std_ws_5']].plot()
 
 
 # --------------------------------------------------------------
 # Frequency features
+"""We are going to use the Discrete Fourier Transform (DFT) to calculate 
+the frequency features.
+https://en.wikipedia.org/wiki/Discrete_Fourier_transform
+We will abstract the different frequency components.
+This is all based on the original GitHub repo ML4QS.
+Features we will be extracting:
+• Amplitude (for each of the relevant frequencies that are part of the time window)
+• Max frequency
+• Weighted frequency (average)
+• Power spectral entropy
+"""
 # --------------------------------------------------------------
+
+# Development code
+df_frequency = df_with_temporal.copy().reset_index()
+freq_abstraction = FourierTransformation()
+
+# parameters
+freq_size = int(1000 / 200) # 5 readings per second
+window_size = int(2800 / 200) # 14 readings per avg set
+
+# Apply frequency abstraction
+df_frequency = freq_abstraction.abstract_frequency(df_frequency, ['acc_y'], window_size, freq_size)
+
+# Visualise results
+subset = df_frequency[df_frequency['set'] == 15]
+subset[['acc_y']].plot()
+subset[['acc_y_max_freq',
+        'acc_y_freq_weighted',
+        'acc_y_pse',
+        'acc_y_freq_1.429_Hz_ws_14', 
+        'acc_y_freq_2.5_Hz_ws_14', 
+        ]
+].plot()
+
+# To calculate for each set
+df_frequency_list = []
+
+for set in df_frequency['set'].unique():
+    print(f"Processing set {set}")
+    subset = df_frequency[df_frequency['set'] == set].copy()
+    subset = freq_abstraction.abstract_frequency(subset, predictor_columns, window_size, freq_size)
+    df_frequency_list.append(subset)
+
+# Combine all sets back into a single DataFrame
+# we have to put back the index, after the discrete one we created above
+df_frequency = pd.concat(df_frequency_list).set_index('epoch (ms)', drop=True)
+df_frequency.info()
+
+# subset[['acc_y', 'acc_y_temp_mean_ws_5', 'acc_y_temp_std_ws_5']].plot()
+# subset[['gyro_y', 'gyro_y_temp_mean_ws_5', 'gyro_y_temp_std_ws_5']].plot()
+
 
 
 # --------------------------------------------------------------
