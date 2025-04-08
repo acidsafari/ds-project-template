@@ -348,11 +348,12 @@ for this.
 """
 # --------------------------------------------------------------
 
+# Development code
 # Creating the class
-df_pca = df_lowpass.copy()
-pca = PrincipalComponentAnalysis()
+# df_pca = df_lowpass.copy()
+# pca = PrincipalComponentAnalysis()
 
-pc_values = pca.determine_pc_explained_variance(df_pca, predictor_columns)
+# pc_values = pca.determine_pc_explained_variance(df_pca, predictor_columns)
 
 # We are going to find the elbow value, optimal
 # plt.figure(figsize=(10, 6))
@@ -363,22 +364,115 @@ pc_values = pca.determine_pc_explained_variance(df_pca, predictor_columns)
 # plt.show()
 
 # Using 3 components
-df_pca = pca.apply_pca(df_pca, predictor_columns, 3)
+# df_pca = pca.apply_pca(df_pca, predictor_columns, 3)
 
 # We are going to keep the original columns for now
 # Checking an example
 # subset = df_pca[df_pca['set'] == 35]
 # subset[['pca_1', 'pca_2', 'pca_3']].plot()
 
+# Production-ready function (to be moved to final version)
+def create_pca_dataframe(data: pd.DataFrame, 
+                        columns: list = None, 
+                        n_components: int = 3) -> pd.DataFrame:
+    """Apply Principal Component Analysis to the sensor data.
+    
+    Args:
+        data (pd.DataFrame): The sensor data to transform
+        columns (list, optional): List of columns to use for PCA. 
+            If None, uses all predictor columns. Defaults to None.
+        n_components (int, optional): Number of principal components to keep.
+            Defaults to 3.
+    
+    Returns:
+        pd.DataFrame: DataFrame with added PCA columns ('pca_1', 'pca_2', etc.)
+        while preserving original columns
+    """
+    if columns is None:
+        columns = predictor_columns
+    
+    # Create a copy to avoid modifying the original data
+    df_pca = data.copy()
+    
+    # Initialize PCA
+    pca = PrincipalComponentAnalysis()
+    
+    # Calculate explained variance (useful for analysis)
+    pc_values = pca.determine_pc_explained_variance(df_pca, columns)
+    
+    # Apply PCA transformation
+    df_pca = pca.apply_pca(df_pca, columns, n_components)
+    
+    return df_pca
+
+# Apply PCA to our filtered data
+df_with_pca = create_pca_dataframe(df_lowpass)
+
 
 # --------------------------------------------------------------
 # Sum of squares attributes
 # --------------------------------------------------------------
 
+# Development code
+# df_square = df_pca.copy()
+
+# acc_r = df_square['acc_x']**2 + df_square['acc_y']**2 + df_square['acc_z']**2
+# gyro_r = df_square['gyro_x']**2 + df_square['gyro_y']**2 + df_square['gyro_z']**2
+
+# df_square['acc_r'] = np.sqrt(acc_r)
+# df_square['gyro_r'] = np.sqrt(gyro_r)
+
+# subset = df_square[df_square['set'] == 14]
+# subset[['acc_r', 'gyro_r']].plot(subplots=True, figsize=(10, 6))
+
+"""we will look at the impact of this in the future
+the reason why it could be good to use is that it does not
+take into consideration of the direction of the movement
+"""
+
+# Production-ready function (to be moved to final version)
+def calculate_squared_magnitudes(data: pd.DataFrame) -> pd.DataFrame:
+    """Calculate the squared magnitudes (Euclidean norm) for accelerometer and gyroscope data.
+    
+    This function computes the root sum of squares for both accelerometer and gyroscope
+    measurements, which gives a direction-independent magnitude of the motion.
+    
+    Args:
+        data (pd.DataFrame): The sensor data containing accelerometer and gyroscope measurements
+    
+    Returns:
+        pd.DataFrame: DataFrame with added 'acc_r' and 'gyro_r' columns containing
+        the magnitude of acceleration and angular velocity respectively
+    """
+    # Create a copy to avoid modifying the original data
+    df_square = data.copy()
+    
+    # Calculate squared sums
+    acc_r = (df_square['acc_x']**2 + 
+             df_square['acc_y']**2 + 
+             df_square['acc_z']**2)
+    
+    gyro_r = (df_square['gyro_x']**2 + 
+              df_square['gyro_y']**2 + 
+              df_square['gyro_z']**2)
+    
+    # Add root sum of squares columns
+    df_square['acc_r'] = np.sqrt(acc_r)
+    df_square['gyro_r'] = np.sqrt(gyro_r)
+    
+    return df_square
+
+# Apply squared magnitudes calculation to our PCA data
+df_with_squares = calculate_squared_magnitudes(df_with_pca)
 
 # --------------------------------------------------------------
 # Temporal abstraction
+"""We basically are going to calculate the rolling avg
+with a window size and input that as a feature, which we can
+use with all kinds of statistical features.
+"""
 # --------------------------------------------------------------
+
 
 
 # --------------------------------------------------------------
