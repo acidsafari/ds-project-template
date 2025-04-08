@@ -5,6 +5,7 @@ from DataTransformation import LowPassFilter, PrincipalComponentAnalysis
 from TemporalAbstraction import NumericalAbstraction
 import os
 from typing import Optional
+from FrequencyAbstraction import FourierTransformation
 
 
 # --------------------------------------------------------------
@@ -49,8 +50,13 @@ def load_cleaned_sensor_data(version: str = 'default') -> pd.DataFrame:
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"Data file not found: {file_path}")
     
-    # Load and return the data
-    return pd.read_pickle(file_path)
+    # Load the data
+    data = pd.read_pickle(file_path)
+    
+    # Set the index name
+    data.index.name = 'epoch (ms)'
+    
+    return data
 
 
 # Checking data loading
@@ -476,38 +482,38 @@ We create this using the NumericalAbstraction class.
 # --------------------------------------------------------------
 
 # Development code
-# df_temporal = df_with_squares.copy()
-# num_abstraction = NumericalAbstraction()
+df_temporal = df_with_squares.copy()
+num_abstraction = NumericalAbstraction()
 
-# predictor_columns = predictor_columns + ['acc_r', 'gyro_r']
+predictor_columns = predictor_columns + ['acc_r', 'gyro_r']
 
-# window_size = int(1000 / 200) # 5 seconds
+window_size = int(1000 / 200) # 5 seconds
 
 # This will introduce errors in the data, mixing different exercises
-# for col in predictor_columns:
-#     df_temporal = num_abstraction.abstract_numerical(df_temporal, [col], window_size, 'mean')
-#     df_temporal = num_abstraction.abstract_numerical(df_temporal, [col], window_size, 'std')
+for col in predictor_columns:
+    df_temporal = num_abstraction.abstract_numerical(df_temporal, [col], window_size, 'mean')
+    df_temporal = num_abstraction.abstract_numerical(df_temporal, [col], window_size, 'std')
     
 # To calculate for each set
-# df_temporal_list = []
+df_temporal_list = []
 
-# for set in df_temporal['set'].unique():
-#     subset = df_temporal[df_temporal['set'] == set].copy()
-#     for col in predictor_columns:
-#         subset = num_abstraction.abstract_numerical(subset, [col], window_size, 'mean')
-#         subset = num_abstraction.abstract_numerical(subset, [col], window_size, 'std')
-#     df_temporal_list.append(subset)
+for set in df_temporal['set'].unique():
+    subset = df_temporal[df_temporal['set'] == set].copy()
+    for col in predictor_columns:
+        subset = num_abstraction.abstract_numerical(subset, [col], window_size, 'mean')
+        subset = num_abstraction.abstract_numerical(subset, [col], window_size, 'std')
+    df_temporal_list.append(subset)
 
-# # Combine all sets back into a single DataFrame
-# df_temporal = pd.concat(df_temporal_list, ignore_index=True)
-# df_temporal.info()
+# Combine all sets back into a single DataFrame
+df_temporal = pd.concat(df_temporal_list)
+df_temporal.info()
 
-# subset[['acc_y', 'acc_y_temp_mean_ws_5', 'acc_y_temp_std_ws_5']].plot()
-# subset[['gyro_y', 'gyro_y_temp_mean_ws_5', 'gyro_y_temp_std_ws_5']].plot()
+subset[['acc_y', 'acc_y_temp_mean_ws_5', 'acc_y_temp_std_ws_5']].plot()
+subset[['gyro_y', 'gyro_y_temp_mean_ws_5', 'gyro_y_temp_std_ws_5']].plot()
 
 # Production-ready function
 def create_temporal_features(data: pd.DataFrame, 
-                           columns: list = None,
+                           columns: list = predictor_columns,
                            window_size: int = 5,
                            aggregation_functions: list = None) -> pd.DataFrame:
     """Create temporal features for sensor data using rolling windows.
@@ -529,8 +535,8 @@ def create_temporal_features(data: pd.DataFrame,
         pd.DataFrame: DataFrame with added temporal features for each column:
             - {col}_temp_{function}_ws_{window_size}: Rolling aggregation
     """
-    if columns is None:
-        # Include magnitude columns if they exist
+    # Create a copy of the columns list to avoid modifying the original
+    if columns is predictor_columns:
         columns = predictor_columns.copy()
         if 'acc_r' in data.columns and 'gyro_r' in data.columns:
             columns.extend(['acc_r', 'gyro_r'])
@@ -556,20 +562,79 @@ def create_temporal_features(data: pd.DataFrame,
         
         df_temporal_list.append(subset)
     
-    # Combine all sets
-    df_temporal = pd.concat(df_temporal_list, ignore_index=True)
+    # Combine all sets while preserving the index
+    df_temporal = pd.concat(df_temporal_list, axis=0)
+    
+    # Sort by the original index to maintain time series order
+    df_temporal = df_temporal.sort_index()
     
     return df_temporal
 
 # Apply temporal feature creation to our squared magnitudes data
 df_with_temporal = create_temporal_features(df_with_squares)
 
-df_with_temporal.info()
+# df_with_temporal.info()
+
+# # Visualise results
+# subset = df_with_temporal[df_with_temporal['set'] == 15]
+# subset[['acc_y', 'acc_y_temp_mean_ws_5', 'acc_y_temp_std_ws_5']].plot()
+# subset[['gyro_y', 'gyro_y_temp_mean_ws_5', 'gyro_y_temp_std_ws_5']].plot()
 
 
 # --------------------------------------------------------------
 # Frequency features
+"""We are going to use the Discrete Fourier Transform (DFT) to calculate 
+the frequency features.
+https://en.wikipedia.org/wiki/Discrete_Fourier_transform
+We will abstract the different frequency components.
+This is all based on the original GitHub repo ML4QS.
+Features we will be extracting:
+• Amplitude (for each of the relevant frequencies that are part of the time window)
+• Max frequency
+• Weighted frequency (average)
+• Power spectral entropy
+"""
 # --------------------------------------------------------------
+
+# Development code
+df_frequency = df_with_temporal.copy().reset_index()
+freq_abstraction = FourierTransformation()
+
+# parameters
+freq_size = int(1000 / 200) # 5 readings per second
+window_size = int(2800 / 200) # 14 readings per avg set
+
+# Apply frequency abstraction
+df_frequency = freq_abstraction.abstract_frequency(df_frequency, ['acc_y'], window_size, freq_size)
+
+# Visualise results
+subset = df_frequency[df_frequency['set'] == 15]
+subset[['acc_y']].plot()
+subset[['acc_y_max_freq',
+        'acc_y_freq_weighted',
+        'acc_y_pse',
+        'acc_y_freq_1.429_Hz_ws_14', 
+        'acc_y_freq_2.5_Hz_ws_14', 
+        ]
+].plot()
+
+# To calculate for each set
+df_frequency_list = []
+
+for set in df_frequency['set'].unique():
+    print(f"Processing set {set}")
+    subset = df_frequency[df_frequency['set'] == set].copy()
+    subset = freq_abstraction.abstract_frequency(subset, predictor_columns, window_size, freq_size)
+    df_frequency_list.append(subset)
+
+# Combine all sets back into a single DataFrame
+# we have to put back the index, after the discrete one we created above
+df_frequency = pd.concat(df_frequency_list).set_index('epoch (ms)', drop=True)
+df_frequency.info()
+
+# subset[['acc_y', 'acc_y_temp_mean_ws_5', 'acc_y_temp_std_ws_5']].plot()
+# subset[['gyro_y', 'gyro_y_temp_mean_ws_5', 'gyro_y_temp_std_ws_5']].plot()
+
 
 
 # --------------------------------------------------------------
