@@ -467,12 +467,104 @@ df_with_squares = calculate_squared_magnitudes(df_with_pca)
 
 # --------------------------------------------------------------
 # Temporal abstraction
+
 """We basically are going to calculate the rolling avg
 with a window size and input that as a feature, which we can
 use with all kinds of statistical features.
+We create this using the NumericalAbstraction class.
 """
 # --------------------------------------------------------------
 
+# Development code
+# df_temporal = df_with_squares.copy()
+# num_abstraction = NumericalAbstraction()
+
+# predictor_columns = predictor_columns + ['acc_r', 'gyro_r']
+
+# window_size = int(1000 / 200) # 5 seconds
+
+# This will introduce errors in the data, mixing different exercises
+# for col in predictor_columns:
+#     df_temporal = num_abstraction.abstract_numerical(df_temporal, [col], window_size, 'mean')
+#     df_temporal = num_abstraction.abstract_numerical(df_temporal, [col], window_size, 'std')
+    
+# To calculate for each set
+# df_temporal_list = []
+
+# for set in df_temporal['set'].unique():
+#     subset = df_temporal[df_temporal['set'] == set].copy()
+#     for col in predictor_columns:
+#         subset = num_abstraction.abstract_numerical(subset, [col], window_size, 'mean')
+#         subset = num_abstraction.abstract_numerical(subset, [col], window_size, 'std')
+#     df_temporal_list.append(subset)
+
+# # Combine all sets back into a single DataFrame
+# df_temporal = pd.concat(df_temporal_list, ignore_index=True)
+# df_temporal.info()
+
+# subset[['acc_y', 'acc_y_temp_mean_ws_5', 'acc_y_temp_std_ws_5']].plot()
+# subset[['gyro_y', 'gyro_y_temp_mean_ws_5', 'gyro_y_temp_std_ws_5']].plot()
+
+# Production-ready function
+def create_temporal_features(data: pd.DataFrame, 
+                           columns: list = None,
+                           window_size: int = 5,
+                           aggregation_functions: list = None) -> pd.DataFrame:
+    """Create temporal features for sensor data using rolling windows.
+    
+    The function calculates temporal features separately for each exercise set to avoid
+    mixing data between different exercises. Features are calculated using a rolling
+    window approach.
+    
+    Args:
+        data (pd.DataFrame): The sensor data to process
+        columns (list, optional): List of columns to create features for.
+            If None, uses predictor columns + magnitude columns. Defaults to None.
+        window_size (int, optional): Size of the rolling window. Defaults to 5.
+        aggregation_functions (list, optional): List of aggregation functions to apply.
+            Available options: ['mean', 'max', 'min', 'median', 'std'].
+            Defaults to ['mean', 'std'].
+    
+    Returns:
+        pd.DataFrame: DataFrame with added temporal features for each column:
+            - {col}_temp_{function}_ws_{window_size}: Rolling aggregation
+    """
+    if columns is None:
+        # Include magnitude columns if they exist
+        columns = predictor_columns.copy()
+        if 'acc_r' in data.columns and 'gyro_r' in data.columns:
+            columns.extend(['acc_r', 'gyro_r'])
+    
+    # Initialize abstraction class
+    num_abstraction = NumericalAbstraction()
+    
+    # Process each set separately to avoid mixing exercise data
+    df_temporal_list = []
+    
+    for set_id in data['set'].unique():
+        # Get data for this set
+        subset = data[data['set'] == set_id].copy()
+        
+        # Set default aggregation functions if none provided
+        if aggregation_functions is None:
+            aggregation_functions = ['mean', 'std']
+            
+        # Calculate temporal features for each column
+        for col in columns:
+            for agg_func in aggregation_functions:
+                subset = num_abstraction.abstract_numerical(subset, [col], window_size, agg_func)
+        
+        df_temporal_list.append(subset)
+    
+    # Combine all sets
+    df_temporal = pd.concat(df_temporal_list, ignore_index=True)
+    
+    return df_temporal
+
+# Apply temporal feature creation to our squared magnitudes data
+df_with_temporal = create_temporal_features(df_with_squares)
+
+df_with_temporal.info()
 
 
 # --------------------------------------------------------------
