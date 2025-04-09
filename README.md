@@ -255,23 +255,67 @@ The project includes a comprehensive feature engineering module (`src/features/b
 
 ### Example Usage
 
-Here's a quick example of how to use the clustering and visualization functions:
+There are two main ways to use the feature engineering functionality:
+
+#### 1. Using the Full Pipeline
+
+This approach processes all the data through the complete pipeline:
 
 ```python
-# Load your data
-data = load_cleaned_sensor_data()
+from src.features.build_features import main
 
-# Visualize elbow curve to find optimal number of clusters
-visualize_elbow_method(data, k_range=(2, 15))
-
-# Compare clusters with exercise labels
-plot_cluster_comparison(data, n_clusters=5)
-
-# Save high-quality plot
-save_dir = os.path.join('reports', 'development_presentation', 'images')
-save_cluster_plot(data, n_clusters=5, save_dir=save_dir)
+# Run the complete pipeline
+main()
 ```
 
-The generated plots will be saved in high resolution (300 DPI) in the specified directory.
+This will:
+1. Load and clean the sensor data
+2. Calculate squared magnitudes for accelerometer and gyroscope
+3. Apply signal processing (Butterworth filter)
+4. Create temporal and frequency features
+5. Generate clusters and save the results
+
+#### 2. Using Functions Individually
+
+For more flexibility, you can use the functions individually in a notebook:
+
+```python
+from src.features.build_features import *
+
+# Load data
+data = load_cleaned_sensor_data()
+
+# Process step by step
+data_clean = interpolate_missing_values(data)
+data_with_durations = calculate_set_durations(data_clean)
+data_with_magnitudes = calculate_squared_magnitudes(data_with_durations)
+data_filtered = apply_butterworth_filter(data_with_magnitudes)
+data_pca = create_pca_dataframe(data_filtered)
+
+# Create features
+data_temporal = create_temporal_features(
+    data_pca,
+    window_size=DEFAULT_WINDOW_SIZE,
+    aggregation_functions=['mean', 'std', 'min', 'max']
+)
+data_frequency = create_frequency_features(
+    data_temporal,
+    window_size=DEFAULT_WINDOW_SIZE,
+    freq_size=DEFAULT_FREQ_SIZE
+)
+data_final = remove_overlapping_windows(
+    data_frequency,
+    sampling_rate=2,
+    drop_nan=True
+)
+```
+
+The individual approach gives you more control over:
+- Inspecting intermediate results
+- Customizing parameters
+- Experimenting with different feature combinations
+- Visualizing the effects of each transformation
+
+All generated plots will be saved in high resolution (300 DPI) in the specified directory.
 
 ---

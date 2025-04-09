@@ -685,6 +685,63 @@ code {
     font-size: clamp(0.6em, 0.9vw, 0.7em);
 }
 
+/* Feature Building */
+.feature-building .visualization-example {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    margin: 0 auto;
+    width: 90%;
+    max-width: 1200px;
+    padding: 2rem;
+}
+
+.feature-building .prompt-section,
+.feature-building .result-section {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(75, 72, 229, 0.05);
+    border: 1px solid rgba(75, 72, 229, 0.1);
+}
+
+.feature-building h3 {
+    color: rgba(33, 150, 243, 0.8);
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: clamp(1em, 1.5vw, 1.2em);
+}
+
+.feature-building .prompt-box ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.feature-building .prompt-box li {
+    font-family: 'Fira Code', monospace;
+    margin: 0.6rem 0;
+    padding: 0.4rem;
+    background: rgba(33, 150, 243, 0.1);
+    border-radius: 4px;
+    text-align: center;
+    font-size: clamp(0.8em, 1.2vw, 0.95em);
+    color: #2c3e50;
+}
+
+.feature-building .result-box pre {
+    margin: 0;
+    padding: 0;
+}
+
+.feature-building .result-box code {
+    font-family: 'Fira Code', monospace;
+    font-size: clamp(0.7em, 1vw, 0.85em);
+    line-height: 1.4;
+    background: transparent;
+    color: #2c3e50;
+}
+
 /* Clustering Analysis */
 .analysis-overview {
     display: flex;

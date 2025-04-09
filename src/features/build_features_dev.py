@@ -77,7 +77,9 @@ plt.rcParams['lines.linewidth'] = 2
 # We are going to use interpolation for this
 # --------------------------------------------------------------
 
-def interpolate_missing_values(data: pd.DataFrame, columns: list = None, method: str = 'linear') -> pd.DataFrame:
+def interpolate_missing_values(data: pd.DataFrame, 
+                               columns: list = None, 
+                               method: str = 'linear') -> pd.DataFrame:
     """Interpolate missing values in the specified columns using pandas interpolation.
     
     Args:
@@ -186,7 +188,8 @@ functions we imported from the ML4QS course.
 # duration_df.iloc[1] / 10 # Second category: 10 reps per set
 
 # Production-ready functions (to be moved to final version)
-def calculate_set_durations(data: pd.DataFrame, round_to_seconds: bool = True) -> pd.DataFrame:
+def calculate_set_durations(data: pd.DataFrame, 
+                            round_to_seconds: bool = True) -> pd.DataFrame:
     """Calculate the duration of each exercise set and add it as a new column.
     
     Args:

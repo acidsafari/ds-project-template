@@ -219,6 +219,80 @@ ABSOLUTE_DATA_PATH = os.path.join(PROJECT_ROOT, "data", "raw")</code></pre>
           </div>
         </section>
 
+        <!-- Feature Building -->
+        <section>
+          <h2>Feature Building</h2>
+          <div class="visualization-example">
+            <div class="prompt-section">
+              <h3>Functions</h3>
+              <div class="prompt-box">
+                <ul>
+                  <li>load_cleaned_sensor_data</li>
+                  <li>interpolate_missing_values</li>
+                  <li>calculate_set_durations</li>
+                  <li>get_average_durations</li>
+                  <li>calculate_squared_magnitudes</li>
+                  <li>apply_butterworth_filter</li>
+                  <li>create_pca_dataframe</li>
+                  <li>create_temporal_features</li>
+                  <li>create_frequency_features</li>
+                  <li>remove_overlapping_windows</li>
+                  <li>create_clustered_dataframe</li>
+                  <li>plot_cluster_comparison</li>
+                  <li>save_cluster_plot</li>
+                  <li>save_clustered_data</li>
+                </ul>
+              </div>
+            </div>
+            <div class="result-section">
+              <h3>Pipeline Implementation</h3>
+              <div class="result-box">
+                <pre><code class="python">def main():
+    # Load and prepare data
+    data = load_cleaned_sensor_data()
+    
+    # Interpolate missing values
+    data_interpolated = interpolate_missing_values(data)
+    
+    # Calculate set durations
+    data_with_duration = calculate_set_durations(data_interpolated)
+    
+    # Get average durations per category
+    average_durations = get_average_durations(data_with_duration)
+    print("Average durations per category:")
+    print(average_durations)
+    
+    # Apply Butterworth filter
+    df_lowpass = apply_butterworth_filter(data_with_duration)
+    
+    # Apply PCA transformation
+    df_with_pca = create_pca_dataframe(df_lowpass)
+    
+    # Create temporal features
+    df_temporal = create_temporal_features(df_with_pca, 
+                                         window_size=14,
+                                         aggregation_functions=['mean', 'std', 'min', 'max'])
+    
+    # Create frequency features
+    df_frequency = create_frequency_features(df_temporal, 
+                                          window_size=14,
+                                          freq_size=5)
+    
+    # Remove overlapping windows to reduce autocorrelation
+    df_features = remove_overlapping_windows(df_frequency, 
+                                           sampling_rate=2,
+                                           drop_nan=True)
+    
+    # Create clusters
+    df_with_clusters = create_clustered_dataframe(df_features)
+    
+    # Save the final dataset
+    save_clustered_data(df_with_clusters)</code></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <!-- Clustering Analysis -->
         <section>
           <h2>Clustering Analysis</h2>
