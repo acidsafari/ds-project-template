@@ -8,7 +8,9 @@
 
 ## Project Overview
 
-This project aims to create Python scripts to process, visualize, and model accelerometer and gyroscope data to create a machine learning model that can classify barbell exercises and count repetitions. The system will analyze sensor data to automatically identify different barbell movements and track exercise performance.
+This project follows a Master Level - Full Machine Learning Project: Coding a Fitness Tracker by Dave Abbelaar ([YouTube Playlist](https://www.youtube.com/playlist?list=PL-Y17yukoyy0sT2hoSQxn1TdV0J7-MX4K)).
+
+The project aims to create Python scripts to process, visualize, and model accelerometer and gyroscope data to create a machine learning model that can classify barbell exercises and count repetitions. The system will analyze sensor data to automatically identify different barbell movements and track exercise performance.
 
 <div align="center">
   <img src="images/barbell_exercises.png" alt="Common barbell exercises: Bench Press, Deadlift, Overhead Press, Barbell Row, and Squat" width="800"/>
@@ -111,7 +113,7 @@ This command creates a copy of `.env.example` and names it `.env`, allowing you 
 
 ## Project Organization
 
-```
+````
 ├── LICENSE            <- Open-source license if one is chosen
 ├── README.md          <- The top-level README for developers using this project
 ├── data
@@ -150,9 +152,10 @@ The project includes a comprehensive visualization module for analyzing sensor d
 ```bash
 # Generate all sensor data visualizations
 python src/visualization/visualize.py
-```
+````
 
 This will create dual-plot visualizations for each exercise-participant combination, showing:
+
 - Accelerometer data (x, y, z axes) in the top panel
 - Gyroscope data (x, y, z axes) in the bottom panel
 
@@ -170,6 +173,7 @@ The visualization development process is documented in `src/visualization/visual
 ### Best Practices
 
 The visualization module follows several best practices:
+
 - Uses non-interactive backend for headless execution
 - Saves high-resolution (300 DPI) plots
 - Provides clear progress reporting during plot generation
@@ -185,6 +189,7 @@ The project follows a structured data processing pipeline that transforms raw se
 The dataset creation process is handled by `src/data/make_dataset.py` and includes:
 
 1. **Data Loading**
+
    - Read raw CSV files from sensor recordings
    - Parse timestamps and sensor values
    - Organize data by participant and exercise
@@ -199,6 +204,7 @@ The dataset creation process is handled by `src/data/make_dataset.py` and includ
 Outlier detection and removal (`src/data/remove_outliers.py`) supports multiple methods:
 
 1. **Statistical Methods**
+
    - IQR (Interquartile Range) based detection
    - Chauvenet's criterion for normal distributions
    - Z-score based outlier detection
@@ -237,12 +243,14 @@ The project includes a comprehensive feature engineering module (`src/features/b
 ### Available Functions
 
 1. **Data Processing**
+
    - `load_cleaned_sensor_data()`: Load preprocessed sensor data
    - `interpolate_missing_values()`: Handle missing values in sensor data
    - `calculate_set_durations()`: Calculate exercise set durations
    - `apply_butterworth_filter()`: Apply low-pass filter to sensor data
 
 2. **Clustering**
+
    - `create_clustered_dataframe()`: Create DataFrame with cluster assignments
    - `save_clustered_data()`: Save clustered data to pickle file
 
@@ -253,23 +261,105 @@ The project includes a comprehensive feature engineering module (`src/features/b
 
 ### Example Usage
 
-Here's a quick example of how to use the clustering and visualization functions:
+There are two main ways to use the feature engineering functionality:
+
+#### 1. Using the Full Pipeline
+
+This approach processes all the data through the complete pipeline:
 
 ```python
-# Load your data
-data = load_cleaned_sensor_data()
+from src.features.build_features import main
 
-# Visualize elbow curve to find optimal number of clusters
-visualize_elbow_method(data, k_range=(2, 15))
-
-# Compare clusters with exercise labels
-plot_cluster_comparison(data, n_clusters=5)
-
-# Save high-quality plot
-save_dir = os.path.join('reports', 'development_presentation', 'images')
-save_cluster_plot(data, n_clusters=5, save_dir=save_dir)
+# Run the complete pipeline
+main()
 ```
 
-The generated plots will be saved in high resolution (300 DPI) in the specified directory.
+This will:
+
+1. Load and clean the sensor data
+2. Calculate squared magnitudes for accelerometer and gyroscope
+3. Apply signal processing (Butterworth filter)
+4. Create temporal and frequency features
+5. Generate clusters and save the results
+
+#### 2. Using Functions Individually
+
+For more flexibility, you can use the functions individually in a notebook:
+
+```python
+from src.features.build_features import *
+
+# Load data
+data = load_cleaned_sensor_data()
+
+# Process step by step
+data_clean = interpolate_missing_values(data)
+data_with_durations = calculate_set_durations(data_clean)
+data_with_magnitudes = calculate_squared_magnitudes(data_with_durations)
+data_filtered = apply_butterworth_filter(data_with_magnitudes)
+data_pca = create_pca_dataframe(data_filtered)
+
+# Create features
+data_temporal = create_temporal_features(
+    data_pca,
+    window_size=DEFAULT_WINDOW_SIZE,
+    aggregation_functions=['mean', 'std', 'min', 'max']
+)
+data_frequency = create_frequency_features(
+    data_temporal,
+    window_size=DEFAULT_WINDOW_SIZE,
+    freq_size=DEFAULT_FREQ_SIZE
+)
+data_final = remove_overlapping_windows(
+    data_frequency,
+    sampling_rate=2,
+    drop_nan=True
+)
+```
+
+The individual approach gives you more control over:
+
+- Inspecting intermediate results
+- Customizing parameters
+- Experimenting with different feature combinations
+- Visualizing the effects of each transformation
+
+All generated plots will be saved in high resolution (300 DPI) in the specified directory.
+
+### Clustering Visualization
+
+To visualize the clustering results in a notebook, you can use the following functions:
+
+```python
+from src.features.build_features import (
+    load_cleaned_sensor_data,
+    create_clustered_dataframe,
+    visualize_elbow_method,
+    plot_cluster_comparison
+)
+
+# Load preprocessed data
+data = load_cleaned_sensor_data()
+
+# Find optimal number of clusters
+visualize_elbow_method(data, k_range=(2, 15))
+
+# Create and visualize clusters
+df_with_clusters = create_clustered_dataframe(data, n_clusters=3)
+plot_cluster_comparison(df_with_clusters)
+```
+
+This will generate:
+
+1. An elbow plot to help determine the optimal number of clusters
+2. A side-by-side comparison of:
+   - K-means clustering results (left)
+   - Actual exercise labels (right)
+
+The plots will help you evaluate:
+
+- Cluster separation quality
+- Correspondence between clusters and exercises
+- Potential need for parameter adjustments
 
 ---
