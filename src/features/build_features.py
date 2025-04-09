@@ -6,7 +6,7 @@ from TemporalAbstraction import NumericalAbstraction
 import os
 from typing import Optional
 from FrequencyAbstraction import FourierTransformation
-
+from sklearn.cluster import KMeans
 
 # --------------------------------------------------------------
 # Load data
@@ -760,12 +760,260 @@ df_final = remove_overlapping_windows(df_with_frequency)
 
 # --------------------------------------------------------------
 # Clustering
+"""UNSUPERVISED LEARNING
+we are goig to calculate the k-means with the elbow method.
+"""
 # --------------------------------------------------------------
+
+# Development code
+df_cluster = df_final.copy()
+
+# Calculate k-means with elbow method
+cluster_cols = ['acc_x', 'acc_y', 'acc_z']
+k_values = range(2, 10)
+inertias = []
+
+for k in k_values:
+    subset = df_cluster[cluster_cols]
+    kmeans = KMeans(n_clusters=k, random_state=0)
+    cluster_labels = kmeans.fit_predict(subset)
+    inertias.append(kmeans.inertia_)
+
+# Plot the elbow curve
+plt.figure(figsize=(10, 10))
+plt.plot(k_values, inertias, marker='o')
+plt.xlabel('k')
+plt.ylabel('Sum of squared distances')
+plt.title('Elbow Method For Optimal k')
+plt.show()
+
+# Model for k = 5
+kmeans = KMeans(n_clusters=5, random_state=0)
+subset = df_cluster[cluster_cols]
+df_cluster['cluster'] = kmeans.fit_predict(subset)
+
+# Plot and save clusters visualization
+fig = plt.figure(figsize=(15, 15))
+ax = fig.add_subplot(projection='3d')
+for cluster in df_cluster['cluster'].unique():
+    subset = df_cluster[df_cluster['cluster'] == cluster]
+    ax.scatter(subset['acc_x'], subset['acc_y'], subset['acc_z'], label=f'Cluster {cluster}')
+ax.set_xlabel('Acceleration X (g)')
+ax.set_ylabel('Acceleration Y (g)')
+ax.set_zlabel('Acceleration Z (g)')
+ax.set_title('K-Means Clustering Results (k=5)', pad=20, fontsize=14)
+ax.legend()
+
+# Save clusters plot
+plot_dir = os.path.join('..', '..', 'reports', 'development_presentation', 'images')
+os.makedirs(plot_dir, exist_ok=True)
+plt.savefig(os.path.join(plot_dir, 'clusters_plot.png'),
+            bbox_inches='tight', dpi=300)
+plt.show()
+
+# Plot and save accelerometer data comparison
+fig = plt.figure(figsize=(15, 15))
+ax = fig.add_subplot(projection='3d')
+for exercise_name in df_cluster['exercise_name'].unique():
+    subset = df_cluster[df_cluster['exercise_name'] == exercise_name]
+    ax.scatter(subset['acc_x'], subset['acc_y'], subset['acc_z'], label=f'Exercise {exercise_name}')
+ax.set_xlabel('Acceleration X (g)')
+ax.set_ylabel('Acceleration Y (g)')
+ax.set_zlabel('Acceleration Z (g)')
+ax.set_title('Accelerometer Data by Exercise Type', pad=20, fontsize=14)
+ax.legend()
+
+# Save exercise comparison plot
+plot_dir = os.path.join('..', '..', 'reports', 'development_presentation', 'images')
+os.makedirs(plot_dir, exist_ok=True)
+plt.savefig(os.path.join(plot_dir, 'exercise_comparison_plot.png'),
+            bbox_inches='tight', dpi=300)
+plt.show()
+
+
+
+# --------------------------------------------------------------
+# Clustering visualization functions
+# --------------------------------------------------------------
+
+def visualize_elbow_method(data: pd.DataFrame,
+                        columns: list = None,
+                        k_range: tuple = (2, 10),
+                        random_state: int = 0,
+                        save_plot: bool = False,
+                        save_dir: str = None) -> None:
+    """Visualize the elbow method for K-means clustering to help choose optimal k.
+    
+    Args:
+        data (pd.DataFrame): The data to cluster
+        columns (list, optional): Columns to use for clustering.
+            Defaults to ['acc_x', 'acc_y', 'acc_z'].
+        k_range (tuple, optional): Range of k values to test (min, max).
+            Defaults to (2, 10).
+        random_state (int, optional): Random state for reproducibility.
+            Defaults to 0.
+        save_plot (bool, optional): Whether to save the plot.
+            Defaults to False.
+        save_dir (str, optional): Directory to save the plot.
+            Required if save_plot is True.
+    """
+    if columns is None:
+        columns = ['acc_x', 'acc_y', 'acc_z']
+    
+    k_values = range(k_range[0], k_range[1])
+    inertias = []
+    
+    for k in k_values:
+        subset = data[columns]
+        kmeans = KMeans(n_clusters=k, random_state=random_state)
+        cluster_labels = kmeans.fit_predict(subset)
+        inertias.append(kmeans.inertia_)
+    
+    plt.figure(figsize=(10, 10))
+    plt.plot(k_values, inertias, marker='o')
+    plt.xlabel('Number of Clusters (k)')
+    plt.ylabel('Sum of Squared Distances')
+    plt.title('Elbow Method for Optimal k', pad=20, fontsize=14)
+    
+    if save_plot:
+        if save_dir is None:
+            raise ValueError("save_dir must be provided when save_plot is True")
+        os.makedirs(save_dir, exist_ok=True)
+        plt.savefig(os.path.join(save_dir, 'elbow_curve.png'),
+                    bbox_inches='tight', dpi=300)
+    
+    plt.show()
+
+# For elbow method visualization
+visualize_elbow_method(df_final)
+
+def plot_cluster_comparison(data: pd.DataFrame,
+                           n_clusters: int = 5,
+                           columns: list = None,
+                           random_state: int = 0) -> None:
+    """Plot K-means clustering results alongside actual exercise labels.
+    
+    Creates two 3D scatter plots side by side:
+    1. Data points colored by cluster assignment
+    2. Same data points colored by exercise type
+    
+    Args:
+        data (pd.DataFrame): The data to cluster and visualize
+        n_clusters (int, optional): Number of clusters for K-means.
+            Defaults to 5.
+        columns (list, optional): Columns to use for clustering.
+            Defaults to ['acc_x', 'acc_y', 'acc_z'].
+        random_state (int, optional): Random state for reproducibility.
+            Defaults to 0.
+    """
+    if columns is None:
+        columns = ['acc_x', 'acc_y', 'acc_z']
+    
+    # Create clusters
+    kmeans = KMeans(n_clusters=n_clusters, random_state=random_state)
+    subset = data[columns]
+    data_with_clusters = data.copy()
+    data_with_clusters['cluster'] = kmeans.fit_predict(subset)
+    
+    # Create figure with two subplots side by side
+    fig = plt.figure(figsize=(20, 15))
+    
+    # Plot clusters
+    ax1 = fig.add_subplot(121, projection='3d')
+    for cluster in data_with_clusters['cluster'].unique():
+        subset = data_with_clusters[data_with_clusters['cluster'] == cluster]
+        ax1.scatter(subset['acc_x'], subset['acc_y'], subset['acc_z'],
+                    label=f'Cluster {cluster}')
+    ax1.set_xlabel('Acceleration X (g)')
+    ax1.set_ylabel('Acceleration Y (g)')
+    ax1.set_zlabel('Acceleration Z (g)')
+    ax1.set_title(f'K-Means Clustering Results (k={n_clusters})',
+                  pad=20, fontsize=14)
+    ax1.legend()
+    
+    # Plot exercise types
+    ax2 = fig.add_subplot(122, projection='3d')
+    for exercise_name in data_with_clusters['exercise_name'].unique():
+        subset = data_with_clusters[data_with_clusters['exercise_name'] == exercise_name]
+        ax2.scatter(subset['acc_x'], subset['acc_y'], subset['acc_z'],
+                    label=f'Exercise {exercise_name}')
+    ax2.set_xlabel('Acceleration X (g)')
+    ax2.set_ylabel('Acceleration Y (g)')
+    ax2.set_zlabel('Acceleration Z (g)')
+    ax2.set_title('Accelerometer Data by Exercise Type',
+                  pad=20, fontsize=14)
+    ax2.legend()
+    
+    plt.tight_layout()
+    plt.show()
+
+# For cluster comparison (no saving)
+plot_cluster_comparison(df_final, n_clusters=5)
+
+
+def save_cluster_plot(data: pd.DataFrame,
+                      n_clusters: int = 5,
+                      columns: list = None,
+                      random_state: int = 0,
+                      save_dir: str = None) -> None:
+    """Create and save a single plot showing K-means clustering results.
+    
+    Args:
+        data (pd.DataFrame): The data to cluster and visualize
+        n_clusters (int, optional): Number of clusters for K-means.
+            Defaults to 5.
+        columns (list, optional): Columns to use for clustering.
+            Defaults to ['acc_x', 'acc_y', 'acc_z'].
+        random_state (int, optional): Random state for reproducibility.
+            Defaults to 0.
+        save_dir (str): Directory to save the plot.
+    """
+    if columns is None:
+        columns = ['acc_x', 'acc_y', 'acc_z']
+    
+    if save_dir is None:
+        raise ValueError("save_dir must be provided")
+    
+    # Create clusters
+    kmeans = KMeans(n_clusters=n_clusters, random_state=random_state)
+    subset = data[columns]
+    data_with_clusters = data.copy()
+    data_with_clusters['cluster'] = kmeans.fit_predict(subset)
+    
+    # Create single plot
+    fig = plt.figure(figsize=(15, 15))
+    ax = fig.add_subplot(projection='3d')
+    
+    # Plot clusters
+    for cluster in data_with_clusters['cluster'].unique():
+        subset = data_with_clusters[data_with_clusters['cluster'] == cluster]
+        ax.scatter(subset['acc_x'], subset['acc_y'], subset['acc_z'],
+                   label=f'Cluster {cluster}')
+    
+    ax.set_xlabel('Acceleration X (g)')
+    ax.set_ylabel('Acceleration Y (g)')
+    ax.set_zlabel('Acceleration Z (g)')
+    ax.set_title(f'K-Means Clustering Results (k={n_clusters})',
+                 pad=20, fontsize=14)
+    ax.legend()
+    
+    # Save plot
+    os.makedirs(save_dir, exist_ok=True)
+    plt.savefig(os.path.join(save_dir, 'cluster_exercise_side_by_side_plot.png'),
+                bbox_inches='tight', dpi=300)
+    plt.close()
+
+
+# Example usage
+plot_dir = os.path.join('..', '..', 'reports', 'development_presentation', 'images')
+save_cluster_plot(df_final, n_clusters=5, save_dir=plot_dir)
 
 
 # --------------------------------------------------------------
 # Export dataset
 # --------------------------------------------------------------
+
+
 
 # if __name__ == "__main__":
 #     print("Testing data loading function...")
