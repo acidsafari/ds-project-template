@@ -481,35 +481,36 @@ We create this using the NumericalAbstraction class.
 """
 # --------------------------------------------------------------
 
-# Development code
-df_temporal = df_with_squares.copy()
-num_abstraction = NumericalAbstraction()
+# # Development code
+# df_temporal = df_with_squares.copy()
+# num_abstraction = NumericalAbstraction()
 
-predictor_columns = predictor_columns + ['acc_r', 'gyro_r']
+# predictor_columns = predictor_columns + ['acc_r', 'gyro_r']
 
-window_size = int(1000 / 200) # 5 seconds
+# window_size = int(1000 / 200) # 5 seconds
 
-# This will introduce errors in the data, mixing different exercises
-for col in predictor_columns:
-    df_temporal = num_abstraction.abstract_numerical(df_temporal, [col], window_size, 'mean')
-    df_temporal = num_abstraction.abstract_numerical(df_temporal, [col], window_size, 'std')
+# # This will introduce errors in the data, mixing different exercises
+# for col in predictor_columns:
+#     df_temporal = num_abstraction.abstract_numerical(df_temporal, [col], window_size, 'mean')
+#     df_temporal = num_abstraction.abstract_numerical(df_temporal, [col], window_size, 'std')
     
-# To calculate for each set
-df_temporal_list = []
+# # To calculate for each set
+# df_temporal_list = []
 
-for set in df_temporal['set'].unique():
-    subset = df_temporal[df_temporal['set'] == set].copy()
-    for col in predictor_columns:
-        subset = num_abstraction.abstract_numerical(subset, [col], window_size, 'mean')
-        subset = num_abstraction.abstract_numerical(subset, [col], window_size, 'std')
-    df_temporal_list.append(subset)
+# for set in df_temporal['set'].unique():
+#     subset = df_temporal[df_temporal['set'] == set].copy()
+#     for col in predictor_columns:
+#         subset = num_abstraction.abstract_numerical(subset, [col], window_size, 'mean')
+#         subset = num_abstraction.abstract_numerical(subset, [col], window_size, 'std')
+#     df_temporal_list.append(subset)
 
-# Combine all sets back into a single DataFrame
-df_temporal = pd.concat(df_temporal_list)
-df_temporal.info()
+# # Combine all sets back into a single DataFrame
+# df_temporal = pd.concat(df_temporal_list)
+# df_temporal.info()
 
-subset[['acc_y', 'acc_y_temp_mean_ws_5', 'acc_y_temp_std_ws_5']].plot()
-subset[['gyro_y', 'gyro_y_temp_mean_ws_5', 'gyro_y_temp_std_ws_5']].plot()
+# subset[['acc_y', 'acc_y_temp_mean_ws_5', 'acc_y_temp_std_ws_5']].plot()
+# subset[['gyro_y', 'gyro_y_temp_mean_ws_5', 'gyro_y_temp_std_ws_5']].plot()
+
 
 # Production-ready function
 def create_temporal_features(data: pd.DataFrame, 
@@ -596,45 +597,112 @@ Features we will be extracting:
 """
 # --------------------------------------------------------------
 
-# Development code
-df_frequency = df_with_temporal.copy().reset_index()
-freq_abstraction = FourierTransformation()
+# # Development code
+# df_frequency = df_with_temporal.copy().reset_index()
+# freq_abstraction = FourierTransformation()
 
-# parameters
-freq_size = int(1000 / 200) # 5 readings per second
-window_size = int(2800 / 200) # 14 readings per avg set
+# # parameters
+# freq_size = int(1000 / 200) # 5 readings per second
+# window_size = int(2800 / 200) # 14 readings per avg set
 
-# Apply frequency abstraction
-df_frequency = freq_abstraction.abstract_frequency(df_frequency, ['acc_y'], window_size, freq_size)
+# # Apply frequency abstraction
+# df_frequency = freq_abstraction.abstract_frequency(df_frequency, ['acc_y'], window_size, freq_size)
 
-# Visualise results
-subset = df_frequency[df_frequency['set'] == 15]
-subset[['acc_y']].plot()
-subset[['acc_y_max_freq',
-        'acc_y_freq_weighted',
-        'acc_y_pse',
-        'acc_y_freq_1.429_Hz_ws_14', 
-        'acc_y_freq_2.5_Hz_ws_14', 
-        ]
-].plot()
+# # Visualise results
+# subset = df_frequency[df_frequency['set'] == 15]
+# subset[['acc_y']].plot()
+# subset[['acc_y_max_freq',
+#         'acc_y_freq_weighted',
+#         'acc_y_pse',
+#         'acc_y_freq_1.429_Hz_ws_14', 
+#         'acc_y_freq_2.5_Hz_ws_14', 
+#         ]
+# ].plot()
 
-# To calculate for each set
-df_frequency_list = []
+# # To calculate for each set
+# df_frequency_list = []
 
-for set in df_frequency['set'].unique():
-    print(f"Processing set {set}")
-    subset = df_frequency[df_frequency['set'] == set].copy()
-    subset = freq_abstraction.abstract_frequency(subset, predictor_columns, window_size, freq_size)
-    df_frequency_list.append(subset)
+# for set in df_frequency['set'].unique():
+#     print(f"Processing set {set}")
+#     subset = df_frequency[df_frequency['set'] == set].reset_index(drop=True).copy()
+#     subset = freq_abstraction.abstract_frequency(subset, predictor_columns, window_size, freq_size)
+#     df_frequency_list.append(subset)
 
-# Combine all sets back into a single DataFrame
-# we have to put back the index, after the discrete one we created above
-df_frequency = pd.concat(df_frequency_list).set_index('epoch (ms)', drop=True)
-df_frequency.info()
+# # Combine all sets back into a single DataFrame
+# # we have to put back the index, after the discrete one we created above
+# df_frequency = pd.concat(df_frequency_list).set_index('epoch (ms)', drop=True)
 
-# subset[['acc_y', 'acc_y_temp_mean_ws_5', 'acc_y_temp_std_ws_5']].plot()
-# subset[['gyro_y', 'gyro_y_temp_mean_ws_5', 'gyro_y_temp_std_ws_5']].plot()
 
+# Production-ready function
+def create_frequency_features(data: pd.DataFrame,
+                            columns: list = None,
+                            window_size: int = 14,  # 14 readings per avg set
+                            freq_size: int = 5,    # 5 readings per second
+                            verbose: bool = False) -> pd.DataFrame:
+    """Create frequency-based features using Discrete Fourier Transform (DFT).
+    
+    This function calculates various frequency-based features for each exercise set:
+    • Amplitude for relevant frequencies in the time window
+    • Maximum frequency
+    • Weighted frequency (average)
+    • Power spectral entropy
+    
+    Args:
+        data (pd.DataFrame): The sensor data to process
+        columns (list, optional): List of columns to create features for.
+            If None, uses predictor columns. Defaults to None.
+        window_size (int, optional): Size of the rolling window in data points.
+            Defaults to 14 (average set length).
+        freq_size (int, optional): Number of frequency components to consider.
+            Defaults to 5.
+        verbose (bool, optional): Whether to print progress messages.
+            Defaults to False.
+    
+    Returns:
+        pd.DataFrame: DataFrame with added frequency-based features for each column:
+            - {col}_max_freq: Maximum frequency
+            - {col}_freq_weighted: Weighted average frequency
+            - {col}_pse: Power spectral entropy
+            - {col}_freq_{freq}_Hz_ws_{window}: Amplitude at specific frequencies
+    """
+    if columns is None:
+        columns = predictor_columns.copy()
+        columns.extend(['acc_r', 'gyro_r'])
+    
+    # Initialize frequency abstraction
+    freq_abstraction = FourierTransformation()
+    
+    # Reset index temporarily for frequency calculations
+    df_frequency = data.copy()
+    index_name = df_frequency.index.name
+    df_frequency = df_frequency.reset_index()
+    
+    # Process each set separately
+    df_frequency_list = []
+    
+    for set_id in df_frequency['set'].unique():
+        if verbose:
+            print(f"Processing set {set_id}")
+        
+        # Get data for this set
+        subset = df_frequency[df_frequency['set'] == set_id].reset_index(drop=True).copy()
+        
+        # Calculate frequency features
+        subset = freq_abstraction.abstract_frequency(subset, columns, window_size, freq_size)
+        
+        df_frequency_list.append(subset)
+    
+    # Combine all sets and restore the index
+    df_frequency = pd.concat(df_frequency_list)
+    df_frequency = df_frequency.set_index(index_name)
+    
+    # Sort by the original index to maintain time series order
+    df_frequency = df_frequency.sort_index()
+    
+    return df_frequency
+
+# Apply frequency feature creation to our temporal data
+df_with_frequency = create_frequency_features(df_with_temporal)
 
 
 # --------------------------------------------------------------
