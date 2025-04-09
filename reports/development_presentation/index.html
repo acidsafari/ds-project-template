@@ -36,7 +36,8 @@
           <h2>Project Overview</h2>
           <div class="overview-content">
             <p>
-              This project follows a Master Level - Full Machine Learning Project: Coding a Fitness Tracker by Dave Abbelaar. Link in repo.
+              This project follows a Master Level - Full Machine Learning
+              Project: Coding a Fitness Tracker by Dave Abbelaar. Link in repo.
             </p>
             <ul>
               <li>Classify different barbell exercises</li>
@@ -62,15 +63,21 @@
           <h2>How Windsurf Helps</h2>
           <div class="benefits-grid">
             <div class="benefit">
-              <h3><span>🔧 Project<br />Set-Up</span></h3>
+              <h3>
+                <span>🔧 Project<br />Set-Up</span>
+              </h3>
               <p>Automated environment setup and dependency management</p>
             </div>
             <div class="benefit">
-              <h3><span>📝 Interactive<br />Development</span></h3>
+              <h3>
+                <span>📝 Interactive<br />Development</span>
+              </h3>
               <p>Seamless Jupyter integration for data analysis</p>
             </div>
             <div class="benefit">
-              <h3><span>🤖 AI<br />Assistance</span></h3>
+              <h3>
+                <span>🤖 AI<br />Assistance</span>
+              </h3>
               <p>Intelligent code suggestions and troubleshooting</p>
             </div>
           </div>
@@ -166,7 +173,6 @@ ABSOLUTE_DATA_PATH = os.path.join(PROJECT_ROOT, "data", "raw")</code></pre>
           </div>
         </section>
 
-
         <!-- Outlier Detection Development -->
         <section>
           <h2>Outlier Detection</h2>
@@ -213,7 +219,10 @@ ABSOLUTE_DATA_PATH = os.path.join(PROJECT_ROOT, "data", "raw")</code></pre>
                 </tr>
               </table>
               <div class="method-notes">
-                <p>Selected Chauvenet's criterion as default method for its conservative approach</p>
+                <p>
+                  Selected Chauvenet's criterion as default method for its
+                  conservative approach
+                </p>
               </div>
             </div>
           </div>
@@ -245,7 +254,6 @@ ABSOLUTE_DATA_PATH = os.path.join(PROJECT_ROOT, "data", "raw")</code></pre>
               </div>
             </div>
             <div class="result-section">
-              <h3>Pipeline Implementation</h3>
               <div class="result-box">
                 <pre><code class="python">def main():
     # Load and prepare data
@@ -299,46 +307,27 @@ ABSOLUTE_DATA_PATH = os.path.join(PROJECT_ROOT, "data", "raw")</code></pre>
           <div class="analysis-overview">
             <div class="method-description">
               <h3>K-means Clustering</h3>
-              <ul>
-                <li>Accelerometer data clustering (x, y, z axes)</li>
-                <li>Optimal k selection using elbow method</li>
-                <li>Exercise pattern identification</li>
-              </ul>
+              <div class="description-content">
+                <ul>
+                  <li>Accelerometer data clustering (x, y, z axes)</li>
+                  <li>Optimal k selection using elbow method</li>
+                  <li>Exercise pattern identification</li>
+                </ul>
+              </div>
             </div>
             <div class="visualization">
               <img
-                src="images/cluster_exercise_side_by_side_plot.png"
+                src="images/cluster_exercise_side_by_side_plot.png?v=1"
                 alt="Cluster vs Exercise Comparison"
+                loading="eager"
+                style="display: block; width: 100%; height: auto"
+                onerror="this.onerror=null; console.error('Image failed to load');"
               />
               <p class="caption">
                 Side-by-side comparison of K-means clusters (left) and actual
                 exercise labels (right)
               </p>
             </div>
-          </div>
-        </section>
-
-        <!-- Clustering Implementation -->
-        <section>
-          <h2>Clustering Implementation</h2>
-          <div class="code-example">
-            <pre><code class="python"># Create clusters and visualize results
-from src.features.build_features import (
-    load_cleaned_sensor_data,
-    create_clustered_dataframe,
-    visualize_elbow_method,
-    plot_cluster_comparison
-)
-
-# Load preprocessed data
-data = load_cleaned_sensor_data()
-
-# Find optimal number of clusters
-visualize_elbow_method(data, k_range=(2, 15))
-
-# Create and visualize clusters
-df_with_clusters = create_clustered_dataframe(data, n_clusters=5)
-plot_cluster_comparison(df_with_clusters)</code></pre>
           </div>
         </section>
 
@@ -371,10 +360,55 @@ This project supports interactive Python development using Jupyter functionality
             <div class="response">
               <span class="speaker">Windsurf:</span> "I'll create a modern
               presentation using Reveal.js..."
-              <div class="code-preview">
-                <p>🎨 HTML + CSS for presentations</p>
-                <p>🔄 Live preview server</p>
-                <p>📱 Responsive design</p>
+              <div class="feature-cards">
+                <div class="feature-card">
+                  <div class="feature-icon">🎨</div>
+                  <div class="feature-text">HTML + CSS for presentations</div>
+                </div>
+                <div class="feature-card">
+                  <div class="feature-icon">🔄</div>
+                  <div class="feature-text">Live preview server</div>
+                </div>
+                <div class="feature-card">
+                  <div class="feature-icon">📱</div>
+                  <div class="feature-text">Responsive design</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Personal Notes -->
+        <section>
+          <h2>Personal Notes</h2>
+          <div class="personal-notes">
+            <div class="note-card">
+              <div class="note-content">
+                <h3>My Experience</h3>
+                <ul>
+                  <li>Sometimes it over talks or thinks without a prompt, which can interrupt the natural flow of development</li>
+                  <li>When moving to a new section, it tends to make over-the-top code proposals</li>
+                </ul>
+              </div>
+            </div>
+            <div class="note-card">
+              <div class="note-content">
+                <h3>Key Takeaways</h3>
+                <ul>
+                  <li>It forgets you are using the interactive window</li>
+                  <li>Worth creating a rule file (TO DO)</li>
+                  <li>Check the results, it thinks it knows better than you</li>
+                </ul>
+              </div>
+            </div>
+            <div class="note-card">
+              <div class="note-content">
+                <h3>Next Steps</h3>
+                <ul>
+                  <li>Build a site from scratch</li>
+                  <li>Copy a site and perfect it</li>
+                  <li>Refactor code</li>
+                </ul>
               </div>
             </div>
           </div>
@@ -383,15 +417,20 @@ This project supports interactive Python development using Jupyter functionality
         <!-- Closing Slide -->
         <section>
           <h2>Why Windsurf?</h2>
-          <div class="closing-points">
-            <ul>
-              <li>🤖 AI-Powered Development</li>
-              <li>📈 Increased Productivity</li>
-              <li>🔧 Automated Setup & Configuration</li>
-              <li>📖 Smart Documentation</li>
-            </ul>
-            <div class="next-steps">
-              <p>Start building your next project with Windsurf!</p>
+          <div class="closing-container">
+            <div class="closing-points">
+              <ul>
+                <li>🤖 AI-Powered Development</li>
+                <li>📈 Increased Productivity</li>
+                <li>🔧 Automated Setup & Configuration</li>
+                <li>📖 Smart Documentation</li>
+              </ul>
+              <div class="next-steps">
+                <p>Start building your next project with Windsurf!</p>
+              </div>
+            </div>
+            <div class="frame-image">
+              <img src="images/frame.png" alt="Windsurf Frame" />
             </div>
           </div>
         </section>

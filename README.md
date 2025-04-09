@@ -113,7 +113,7 @@ This command creates a copy of `.env.example` and names it `.env`, allowing you 
 
 ## Project Organization
 
-```
+````
 ├── LICENSE            <- Open-source license if one is chosen
 ├── README.md          <- The top-level README for developers using this project
 ├── data
@@ -152,9 +152,10 @@ The project includes a comprehensive visualization module for analyzing sensor d
 ```bash
 # Generate all sensor data visualizations
 python src/visualization/visualize.py
-```
+````
 
 This will create dual-plot visualizations for each exercise-participant combination, showing:
+
 - Accelerometer data (x, y, z axes) in the top panel
 - Gyroscope data (x, y, z axes) in the bottom panel
 
@@ -172,6 +173,7 @@ The visualization development process is documented in `src/visualization/visual
 ### Best Practices
 
 The visualization module follows several best practices:
+
 - Uses non-interactive backend for headless execution
 - Saves high-resolution (300 DPI) plots
 - Provides clear progress reporting during plot generation
@@ -187,6 +189,7 @@ The project follows a structured data processing pipeline that transforms raw se
 The dataset creation process is handled by `src/data/make_dataset.py` and includes:
 
 1. **Data Loading**
+
    - Read raw CSV files from sensor recordings
    - Parse timestamps and sensor values
    - Organize data by participant and exercise
@@ -201,6 +204,7 @@ The dataset creation process is handled by `src/data/make_dataset.py` and includ
 Outlier detection and removal (`src/data/remove_outliers.py`) supports multiple methods:
 
 1. **Statistical Methods**
+
    - IQR (Interquartile Range) based detection
    - Chauvenet's criterion for normal distributions
    - Z-score based outlier detection
@@ -239,12 +243,14 @@ The project includes a comprehensive feature engineering module (`src/features/b
 ### Available Functions
 
 1. **Data Processing**
+
    - `load_cleaned_sensor_data()`: Load preprocessed sensor data
    - `interpolate_missing_values()`: Handle missing values in sensor data
    - `calculate_set_durations()`: Calculate exercise set durations
    - `apply_butterworth_filter()`: Apply low-pass filter to sensor data
 
 2. **Clustering**
+
    - `create_clustered_dataframe()`: Create DataFrame with cluster assignments
    - `save_clustered_data()`: Save clustered data to pickle file
 
@@ -269,6 +275,7 @@ main()
 ```
 
 This will:
+
 1. Load and clean the sensor data
 2. Calculate squared magnitudes for accelerometer and gyroscope
 3. Apply signal processing (Butterworth filter)
@@ -311,11 +318,48 @@ data_final = remove_overlapping_windows(
 ```
 
 The individual approach gives you more control over:
+
 - Inspecting intermediate results
 - Customizing parameters
 - Experimenting with different feature combinations
 - Visualizing the effects of each transformation
 
 All generated plots will be saved in high resolution (300 DPI) in the specified directory.
+
+### Clustering Visualization
+
+To visualize the clustering results in a notebook, you can use the following functions:
+
+```python
+from src.features.build_features import (
+    load_cleaned_sensor_data,
+    create_clustered_dataframe,
+    visualize_elbow_method,
+    plot_cluster_comparison
+)
+
+# Load preprocessed data
+data = load_cleaned_sensor_data()
+
+# Find optimal number of clusters
+visualize_elbow_method(data, k_range=(2, 15))
+
+# Create and visualize clusters
+df_with_clusters = create_clustered_dataframe(data, n_clusters=3)
+plot_cluster_comparison(df_with_clusters)
+```
+
+This will generate:
+
+1. An elbow plot to help determine the optimal number of clusters
+2. A side-by-side comparison of:
+   - K-means clustering results (left)
+   - Actual exercise labels (right)
+
+The plots will help you evaluate:
+
+- Cluster separation quality
+- Correspondence between clusters and exercises
+- Potential need for parameter adjustments
 
 ---
