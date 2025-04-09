@@ -832,6 +832,46 @@ plt.show()
 
 
 
+
+# --------------------------------------------------------------
+# Clustering functions
+# --------------------------------------------------------------
+
+def create_clustered_dataframe(data: pd.DataFrame,
+                             n_clusters: int = 5,
+                             columns: list = None,
+                             random_state: int = 0) -> pd.DataFrame:
+    """Create a DataFrame with cluster assignments for each data point.
+    
+    Args:
+        data (pd.DataFrame): The data to cluster
+        n_clusters (int, optional): Number of clusters for K-means.
+            Defaults to 5.
+        columns (list, optional): Columns to use for clustering.
+            Defaults to ['acc_x', 'acc_y', 'acc_z'].
+        random_state (int, optional): Random state for reproducibility.
+            Defaults to 0.
+    
+    Returns:
+        pd.DataFrame: Original DataFrame with an additional 'cluster' column
+            containing cluster assignments (0 to n_clusters-1)
+    """
+    if columns is None:
+        columns = ['acc_x', 'acc_y', 'acc_z']
+    
+    # Create clusters
+    kmeans = KMeans(n_clusters=n_clusters, random_state=random_state)
+    subset = data[columns]
+    data_with_clusters = data.copy()
+    data_with_clusters['cluster'] = kmeans.fit_predict(subset)
+    
+    return data_with_clusters
+
+
+# Example usage of clustering function
+df_with_clusters = create_clustered_dataframe(df_final, n_clusters=5)
+
+
 # --------------------------------------------------------------
 # Clustering visualization functions
 # --------------------------------------------------------------
@@ -885,7 +925,8 @@ def visualize_elbow_method(data: pd.DataFrame,
     plt.show()
 
 # For elbow method visualization
-visualize_elbow_method(df_final)
+visualize_elbow_method(df_with_clusters)
+
 
 def plot_cluster_comparison(data: pd.DataFrame,
                            n_clusters: int = 5,
@@ -948,7 +989,7 @@ def plot_cluster_comparison(data: pd.DataFrame,
     plt.show()
 
 # For cluster comparison (no saving)
-plot_cluster_comparison(df_final, n_clusters=5)
+plot_cluster_comparison(df_with_clusters, n_clusters=5)
 
 
 def save_cluster_plot(data: pd.DataFrame,
@@ -1004,16 +1045,44 @@ def save_cluster_plot(data: pd.DataFrame,
     plt.close()
 
 
-# Example usage
+# Example usage of visualization functions
 plot_dir = os.path.join('..', '..', 'reports', 'development_presentation', 'images')
-save_cluster_plot(df_final, n_clusters=5, save_dir=plot_dir)
+save_cluster_plot(df_with_clusters, n_clusters=5, save_dir=plot_dir)
 
 
 # --------------------------------------------------------------
 # Export dataset
 # --------------------------------------------------------------
 
+def save_clustered_data(data: pd.DataFrame,
+                       filename: str = 'clustered_sensor_data.pkl',
+                       data_dir: str = None) -> None:
+    """Save the clustered DataFrame to a pickle file.
+    
+    Args:
+        data (pd.DataFrame): The DataFrame with cluster assignments
+        filename (str, optional): Name of the output file.
+            Defaults to 'clustered_sensor_data.pkl'.
+        data_dir (str, optional): Directory to save the file.
+            If None, saves to data/processed/. Defaults to None.
+    """
+    if data_dir is None:
+        data_dir = os.path.join('..', '..', 'data', 'interim')
+    
+    # Create directory if it doesn't exist
+    os.makedirs(data_dir, exist_ok=True)
+    
+    # Save DataFrame
+    output_path = os.path.join(data_dir, filename)
+    data.to_pickle(output_path)
+    print(f"Saved clustered data to: {output_path}")
 
+
+# Save the clustered DataFrame to interim folder with standard naming
+save_clustered_data(df_with_clusters, filename='03_data_features.pkl')
+
+
+# Make it production ready.
 
 # if __name__ == "__main__":
 #     print("Testing data loading function...")
