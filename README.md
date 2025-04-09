@@ -176,4 +176,100 @@ The visualization module follows several best practices:
 - Includes comprehensive docstrings and documentation
 - Follows a clean project structure with separate production and development code
 
+## Data Processing
+
+The project follows a structured data processing pipeline that transforms raw sensor data into analysis-ready datasets.
+
+### Dataset Creation
+
+The dataset creation process is handled by `src/data/make_dataset.py` and includes:
+
+1. **Data Loading**
+   - Read raw CSV files from sensor recordings
+   - Parse timestamps and sensor values
+   - Organize data by participant and exercise
+
+2. **Initial Processing**
+   - Resample data to consistent frequency (200ms)
+   - Align accelerometer and gyroscope readings
+   - Create exercise set markers
+
+### Outlier Removal
+
+Outlier detection and removal (`src/data/remove_outliers.py`) supports multiple methods:
+
+1. **Statistical Methods**
+   - IQR (Interquartile Range) based detection
+   - Chauvenet's criterion for normal distributions
+   - Z-score based outlier detection
+
+2. **Advanced Techniques**
+   - Local Outlier Factor (LOF) for density-based detection
+   - Moving window statistics for time-series context
+   - Exercise-specific thresholds
+
+### Example Usage
+
+```python
+# Load raw data and create initial dataset
+from src.data.make_dataset import create_dataset
+dataset = create_dataset(raw_data_path='data/raw')
+
+# Remove outliers using different methods
+from src.data.remove_outliers import remove_outliers
+
+# Using IQR method
+clean_data_iqr = remove_outliers(dataset, method='iqr')
+
+# Using Chauvenet's criterion
+clean_data_chauvenet = remove_outliers(dataset, method='chauvenet')
+
+# Using Local Outlier Factor
+clean_data_lof = remove_outliers(dataset, method='lof')
+```
+
+The cleaned datasets are saved in `data/interim/` with appropriate version markers.
+
+## Feature Building
+
+The project includes a comprehensive feature engineering module (`src/features/build_features.py`) that provides functions for data processing and clustering analysis.
+
+### Available Functions
+
+1. **Data Processing**
+   - `load_cleaned_sensor_data()`: Load preprocessed sensor data
+   - `interpolate_missing_values()`: Handle missing values in sensor data
+   - `calculate_set_durations()`: Calculate exercise set durations
+   - `apply_butterworth_filter()`: Apply low-pass filter to sensor data
+
+2. **Clustering**
+   - `create_clustered_dataframe()`: Create DataFrame with cluster assignments
+   - `save_clustered_data()`: Save clustered data to pickle file
+
+3. **Visualization**
+   - `visualize_elbow_method()`: Plot elbow curve for optimal k selection
+   - `plot_cluster_comparison()`: Compare clusters with exercise labels
+   - `save_cluster_plot()`: Save high-quality cluster visualization
+
+### Example Usage
+
+Here's a quick example of how to use the clustering and visualization functions:
+
+```python
+# Load your data
+data = load_cleaned_sensor_data()
+
+# Visualize elbow curve to find optimal number of clusters
+visualize_elbow_method(data, k_range=(2, 15))
+
+# Compare clusters with exercise labels
+plot_cluster_comparison(data, n_clusters=5)
+
+# Save high-quality plot
+save_dir = os.path.join('reports', 'development_presentation', 'images')
+save_cluster_plot(data, n_clusters=5, save_dir=save_dir)
+```
+
+The generated plots will be saved in high resolution (300 DPI) in the specified directory.
+
 ---
