@@ -707,7 +707,55 @@ df_with_frequency = create_frequency_features(df_with_temporal)
 
 # --------------------------------------------------------------
 # Dealing with overlapping windows
+"""We are going to drop the NaN values resulting from the overlapping windows.
+This is a common issue when working with time series data and overlapping windows.
+
+In order to get rid off the overlaping windows, we are going to drop 50% of the values, even though
+it sounds counterintuitive, it is a common practice in time series analysis.
+By doing this, we are reducing the autocorrelation that occurs between adjacent rows.
+It has been proven that this is a valid approach, in order
+to make the models less prone to overfitting.
+"""
 # --------------------------------------------------------------
+
+# # Development code
+# df_no_nan = df_with_frequency.dropna()
+
+# df_no_overlap = df_no_nan.iloc[::2]
+
+
+def remove_overlapping_windows(data: pd.DataFrame,
+                             sampling_rate: int = 2,
+                             drop_nan: bool = True) -> pd.DataFrame:
+    """Remove overlapping windows from time series data.
+    
+    This function handles the common issue of overlapping windows in time series data.
+    It first removes NaN values (optional) and then reduces autocorrelation by
+    keeping only every nth sample (where n is the sampling_rate).
+    
+    This is a common practice in time series analysis to reduce overfitting by
+    decreasing the autocorrelation between adjacent rows.
+    
+    Args:
+        data (pd.DataFrame): The input DataFrame with potential overlapping windows
+        sampling_rate (int, optional): Keep every nth sample. Defaults to 2 (50% reduction).
+        drop_nan (bool, optional): Whether to drop NaN values before sampling.
+            Defaults to True.
+    
+    Returns:
+        pd.DataFrame: DataFrame with reduced overlapping windows
+    """
+    # First handle NaN values if requested
+    df_processed = data.dropna() if drop_nan else data.copy()
+    
+    # Remove overlapping windows by taking every nth sample
+    df_processed = df_processed.iloc[::sampling_rate]
+    
+    return df_processed
+
+
+# Apply overlap removal to our frequency features
+df_final = remove_overlapping_windows(df_with_frequency)
 
 
 # --------------------------------------------------------------
