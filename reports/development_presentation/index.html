@@ -1,297 +1,372 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fitness Tracker Development with Windsurf</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/reset.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/reveal.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/theme/white.css">
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/reset.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/reveal.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/theme/white.css"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
     <div class="reveal">
-        <div class="slides">
-            <!-- Title Slide -->
-            <section>
-                <h1>Fitness Tracker Development</h1>
-                <h3>Powered by Windsurf IDE</h3>
-                <p>March 2025</p>
-            </section>
+      <div class="navigate-left">←</div>
+      <div class="navigate-right">→</div>
+      <div class="slides">
+        <!-- Title Slide -->
+        <section>
+          <h1>Fitness Tracker<br />Development</h1>
+          <h3>Powered by Windsurf IDE</h3>
+          <p class="author">Samuel Klett Navarro</p>
+          <p>April 2025</p>
+        </section>
 
-            <!-- Project Overview -->
-            <section>
-                <h2>Project Overview</h2>
-                <div class="project-goals">
-                    <ul>
-                        <li>Barbell Exercise Classification</li>
-                        <li>Repetition Counting</li>
-                        <li>Sensor Data Processing</li>
-                        <li>Machine Learning Implementation</li>
-                    </ul>
-                </div>
-                <aside class="notes">
-                    Project aims to process accelerometer and gyroscope data to identify exercises and count reps
-                </aside>
-            </section>
+        <!-- Project Overview -->
+        <section>
+          <h2>Project Overview</h2>
+          <div class="overview-content">
+            <p>
+              This project follows a Master Level - Full Machine Learning Project: Coding a Fitness Tracker by Dave Abbelaar. Link in repo.
+            </p>
+            <ul>
+              <li>Classify different barbell exercises</li>
+              <li>Count repetitions automatically</li>
+              <li>Track exercise performance</li>
+              <li>Provide form feedback</li>
+            </ul>
+            <div class="overview-image">
+              <img
+                src="images/barbell_exercises.png"
+                alt="Common barbell exercises: Bench Press, Deadlift, Overhead Press, Barbell Row, and Squat"
+              />
+            </div>
+          </div>
+          <aside class="notes">
+            Project aims to process sensor data to identify exercises and count
+            reps, helping users track their workout progress
+          </aside>
+        </section>
 
-            <!-- Windsurf Benefits -->
-            <section>
-                <h2>How Windsurf Helps</h2>
-                <div class="benefits-grid">
-                    <div class="benefit">
-                        <h3>🔧 Project Setup</h3>
-                        <p>Automated environment setup and dependency management</p>
-                    </div>
-                    <div class="benefit">
-                        <h3>📝 Interactive Development</h3>
-                        <p>Seamless Jupyter integration for data analysis</p>
-                    </div>
-                    <div class="benefit">
-                        <h3>🤖 AI Assistance</h3>
-                        <p>Intelligent code suggestions and troubleshooting</p>
-                    </div>
-                </div>
-            </section>
+        <!-- Windsurf Benefits -->
+        <section>
+          <h2>How Windsurf Helps</h2>
+          <div class="benefits-grid">
+            <div class="benefit">
+              <h3><span>🔧 Project<br />Set-Up</span></h3>
+              <p>Automated environment setup and dependency management</p>
+            </div>
+            <div class="benefit">
+              <h3><span>📝 Interactive<br />Development</span></h3>
+              <p>Seamless Jupyter integration for data analysis</p>
+            </div>
+            <div class="benefit">
+              <h3><span>🤖 AI<br />Assistance</span></h3>
+              <p>Intelligent code suggestions and troubleshooting</p>
+            </div>
+          </div>
+        </section>
 
-            <!-- Example Interaction 1: Environment Setup -->
-            <section>
-                <h2>Environment Setup</h2>
-                <div class="conversation">
-                    <div class="prompt">
-                        <strong>User:</strong> "Can you help set up the environment for interactive Python development?"
-                    </div>
-                    <div class="response">
-                        <strong>Windsurf:</strong> "I'll help you configure the Jupyter kernel and VS Code settings..."
-                        <pre><code class="bash"># Install Jupyter kernel
+        <!-- Example Interaction 1: Environment Setup -->
+        <section>
+          <h2>Environment Setup</h2>
+          <div class="conversation">
+            <div class="prompt">
+              <span class="speaker">User:</span> "Can you help set up the
+              environment for interactive Python development?"
+            </div>
+            <div class="response">
+              <span class="speaker">Windsurf:</span> "I'll help you configure
+              the Jupyter kernel and VS Code settings..."
+              <pre><code class="bash"># Install Jupyter kernel
 python -m ipykernel install --user --name=tracking-barbell-exercises</code></pre>
-                    </div>
-                </div>
-            </section>
+            </div>
+          </div>
+        </section>
 
-            <!-- Example Interaction 2: Data Management -->
-            <section>
-                <h2>Smart Data Management</h2>
-                <div class="conversation">
-                    <div class="prompt">
-                        <strong>User:</strong> "Could you write the correct path to the CSV file?"
-                    </div>
-                    <div class="response">
-                        <strong>Windsurf:</strong> "I'll help set up robust path handling for your data files..."
-                        <pre><code class="python">import os
+        <!-- Example Interaction 2: Data Management -->
+        <section>
+          <h2>Smart Data Management</h2>
+          <div class="conversation">
+            <div class="prompt">
+              <span class="speaker">User:</span> "Could you write the correct
+              path to the CSV file?"
+            </div>
+            <div class="response">
+              <span class="speaker">Windsurf:</span> "I'll help set up robust
+              path handling for your data files..."
+              <pre><code class="python">import os
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 ABSOLUTE_DATA_PATH = os.path.join(PROJECT_ROOT, "data", "raw")</code></pre>
-                    </div>
-                </div>
-            </section>
+            </div>
+          </div>
+        </section>
 
-            <!-- Data Processing Pipeline -->
-            <section>
-                <h2>Data Processing Pipeline</h2>
-                <div class="processing-steps">
-                    <div class="step">
-                        <h3>1. File Processing</h3>
-                        <ul>
-                            <li>Extract metadata from filenames</li>
-                            <li>Parse participant, exercise, and set info</li>
-                            <li>Separate accelerometer (12.500Hz) and gyroscope (25.000Hz)</li>
-                        </ul>
-                    </div>
-                    <div class="step">
-                        <h3>2. Datetime Processing</h3>
-                        <ul>
-                            <li>Convert epoch timestamps to datetime index</li>
-                            <li>Clean redundant datetime columns</li>
-                            <li>Ensure consistent timezone handling</li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
+        <!-- Data Processing Pipeline -->
+        <section>
+          <h2>Data Processing Pipeline</h2>
+          <div class="processing-steps">
+            <div class="step">
+              <h3>1. File Processing</h3>
+              <p>Extract and validate exercise metadata</p>
+            </div>
+            <div class="step">
+              <h3>2. Datetime Processing</h3>
+              <p>Standardize timestamp formats</p>
+            </div>
+            <div class="step">
+              <h3>3. Sensor Data Merging</h3>
+              <p>Combine accelerometer and gyroscope data</p>
+            </div>
+            <div class="step">
+              <h3>4. Data Resampling</h3>
+              <p>Normalize sampling rates</p>
+            </div>
+          </div>
+        </section>
 
-            <!-- Data Processing Pipeline (continued) -->
-            <section>
-                <h2>Data Processing Pipeline</h2>
-                <div class="processing-steps">
-                    <div class="step">
-                        <h3>3. Sensor Data Merging</h3>
-                        <ul>
-                            <li>Combine accelerometer and gyroscope data</li>
-                            <li>Standardized column names (acc_x, gyro_x, etc.)</li>
-                            <li>Preserve exercise metadata</li>
-                        </ul>
-                    </div>
-                    <div class="step">
-                        <h3>4. Data Resampling</h3>
-                        <ul>
-                            <li>Handle different sampling rates</li>
-                            <li>Resample to 200ms intervals</li>
-                            <li>Process in daily chunks for memory efficiency</li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
+        <!-- Sensor Data Visualization -->
+        <section>
+          <h2>Sensor Data Visualization</h2>
+          <div class="visualization-example">
+            <div class="prompt-section">
+              <h3>User Request:</h3>
+              <div class="prompt-box">
+                <p>
+                  "Create a function that plots both accelerometer and gyroscope
+                  data in a dual-plot layout, showing:
+                </p>
+                <ul>
+                  <li>Accelerometer data in top row</li>
+                  <li>Gyroscope data in bottom row</li>
+                  <li>Shared x-axis for time alignment</li>
+                  <li>Clear labels and legends for each sensor"</li>
+                </ul>
+              </div>
+            </div>
+            <div class="plot-section">
+              <img
+                src="images/example_dual_plot.png"
+                alt="Dual Sensor Plot Example"
+              />
+              <p class="caption">
+                Generated dual sensor visualization showing synchronized
+                accelerometer and gyroscope data
+              </p>
+            </div>
+          </div>
+        </section>
 
-            <!-- Sensor Data Visualization -->
-            <section>
-                <h2>Sensor Data Visualization</h2>
-                <div class="visualization-example">
-                    <div class="prompt-section">
-                        <h3>User Request:</h3>
-                        <div class="prompt-box">
-                            <p>"Create a function that plots both accelerometer and gyroscope data in a dual-plot layout, showing:</p>
-                            <ul>
-                                <li>Accelerometer data in top row</li>
-                                <li>Gyroscope data in bottom row</li>
-                                <li>Shared x-axis for time alignment</li>
-                                <li>Clear labels and legends for each sensor"</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="plot-section">
-                        <img src="images/example_dual_plot.png" alt="Dual Sensor Plot Example">
-                        <p class="caption">Generated dual sensor visualization showing synchronized accelerometer and gyroscope data</p>
-                    </div>
-                </div>
-            </section>
 
-            <!-- Implementation Details -->
-            <section>
-                <h2>Implementation</h2>
-                <div class="code-example">
-                    <pre><code class="python">def plot_dual_sensor_data(data: pd.DataFrame) -> None:
-    # Create figure with two subplots
-    fig, (ax1, ax2) = plt.subplots(nrows=2, sharex=True, figsize=(20, 10))
-    
-    # Plot accelerometer data
-    acc_cols = [col for col in data.columns if col.startswith('acc')]
-    data[acc_cols].plot(ax=ax1)
-    ax1.set_ylabel('Accelerometer')
-    ax1.legend(labels=['acc_x', 'acc_y', 'acc_z'])
-    
-    # Plot gyroscope data
-    gyro_cols = [col for col in data.columns if col.startswith('gyro')]
-    data[gyro_cols].plot(ax=ax2)
-    ax2.set_ylabel('Gyroscope')
-    ax2.set_xlabel('samples')
-    ax2.legend(labels=['gyro_x', 'gyro_y', 'gyro_z'])</code></pre>
-                </div>
-            </section>
+        <!-- Outlier Detection Development -->
+        <section>
+          <h2>Outlier Detection</h2>
+          <div class="outlier-detection-content">
+            <div class="development-approach">
+              <div class="dev-file">
+                <h3>Development Strategy</h3>
+                <ul>
+                  <li>Separate dev and production files</li>
+                  <li>Modular implementation of methods</li>
+                  <li>Easy testing and comparison</li>
+                </ul>
+              </div>
+              <div class="code-structure">
+                <h3>Code Organization</h3>
+                <ul>
+                  <li>Core detection functions</li>
+                  <li>Data processing pipeline</li>
+                  <li>Testing framework</li>
+                </ul>
+              </div>
+            </div>
+            <div class="method-comparison">
+              <table>
+                <tr>
+                  <th>Method</th>
+                  <th>Data Removed</th>
+                  <th>Characteristics</th>
+                </tr>
+                <tr>
+                  <td>IQR</td>
+                  <td>4.73%</td>
+                  <td>Most aggressive, uniform detection</td>
+                </tr>
+                <tr>
+                  <td>Chauvenet</td>
+                  <td>0.34%</td>
+                  <td>Conservative, statistical approach</td>
+                </tr>
+                <tr>
+                  <td>LOF</td>
+                  <td>2.26%</td>
+                  <td>Balanced, context-aware detection</td>
+                </tr>
+              </table>
+              <div class="method-notes">
+                <p>Selected Chauvenet's criterion as default method for its conservative approach</p>
+              </div>
+            </div>
+          </div>
+        </section>
 
-            <!-- Outlier Detection Development -->
-            <section>
-                <h2>Outlier Detection Development</h2>
-                <div class="development-approach">
-                    <div class="dev-file">
-                        <h3>Development Strategy</h3>
-                        <ul>
-                            <li>Separate dev and production files</li>
-                            <li>Modular implementation of methods</li>
-                            <li>Easy testing and comparison</li>
-                        </ul>
-                    </div>
-                    <div class="code-structure">
-                        <h3>Code Organization</h3>
-                        <ul>
-                            <li>Core detection functions</li>
-                            <li>Data processing pipeline</li>
-                            <li>Testing framework</li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
+        <!-- Clustering Analysis -->
+        <section>
+          <h2>Clustering Analysis</h2>
+          <div class="analysis-overview">
+            <div class="method-description">
+              <h3>K-means Clustering</h3>
+              <ul>
+                <li>Accelerometer data clustering (x, y, z axes)</li>
+                <li>Optimal k selection using elbow method</li>
+                <li>Exercise pattern identification</li>
+              </ul>
+            </div>
+            <div class="visualization">
+              <img
+                src="images/cluster_exercise_side_by_side_plot.png"
+                alt="Cluster vs Exercise Comparison"
+              />
+              <p class="caption">
+                Side-by-side comparison of K-means clusters (left) and actual
+                exercise labels (right)
+              </p>
+            </div>
+          </div>
+        </section>
 
-            <!-- Outlier Detection Methods -->
-            <section>
-                <h2>Outlier Detection Methods</h2>
-                <div class="method-comparison">
-                    <table>
-                        <tr>
-                            <th>Method</th>
-                            <th>Data Removed</th>
-                            <th>Characteristics</th>
-                        </tr>
-                        <tr>
-                            <td>IQR</td>
-                            <td>4.73%</td>
-                            <td>Most aggressive, uniform detection</td>
-                        </tr>
-                        <tr>
-                            <td>Chauvenet</td>
-                            <td>0.34%</td>
-                            <td>Conservative, statistical approach</td>
-                        </tr>
-                        <tr>
-                            <td>LOF</td>
-                            <td>2.26%</td>
-                            <td>Balanced, context-aware detection</td>
-                        </tr>
-                    </table>
-                    <div class="method-notes">
-                        <p>Selected Chauvenet's criterion as default method for its conservative approach</p>
-                    </div>
-                </div>
-            </section>
+        <!-- Clustering Implementation -->
+        <section>
+          <h2>Clustering Implementation</h2>
+          <div class="code-example">
+            <pre><code class="python"># Create clusters and visualize results
+from src.features.build_features import (
+    load_cleaned_sensor_data,
+    create_clustered_dataframe,
+    visualize_elbow_method,
+    plot_cluster_comparison
+)
 
-            <!-- Example Interaction 3: Documentation -->
-            <section>
-                <h2>Documentation Assistance</h2>
-                <div class="conversation">
-                    <div class="prompt">
-                        <strong>User:</strong> "Can you write instructions for interactive Python mode in the README?"
-                    </div>
-                    <div class="response">
-                        <strong>Windsurf:</strong> "I'll add a comprehensive guide to the README..."
-                        <pre><code class="markdown">## Interactive Python Development
+# Load preprocessed data
+data = load_cleaned_sensor_data()
+
+# Find optimal number of clusters
+visualize_elbow_method(data, k_range=(2, 15))
+
+# Create and visualize clusters
+df_with_clusters = create_clustered_dataframe(data, n_clusters=5)
+plot_cluster_comparison(df_with_clusters)</code></pre>
+          </div>
+        </section>
+
+        <!-- Example Interaction 3: Documentation -->
+        <section>
+          <h2>Documentation Assistance</h2>
+          <div class="conversation">
+            <div class="prompt">
+              <span class="speaker">User:</span> "Can you write instructions for
+              interactive Python mode in the README?"
+            </div>
+            <div class="response">
+              <span class="speaker">Windsurf:</span> "I'll add a comprehensive
+              guide to the README..."
+              <pre><code class="markdown">## Interactive Python Development
 
 This project supports interactive Python development using Jupyter functionality in VS Code...</code></pre>
-                    </div>
-                </div>
-            </section>
+            </div>
+          </div>
+        </section>
 
-            <!-- Example Interaction 4: Web Development -->
-            <section>
-                <h2>Full-Stack Capabilities</h2>
-                <div class="conversation">
-                    <div class="prompt">
-                        <strong>User:</strong> "Could you create a web presentation for the project?"
-                    </div>
-                    <div class="response">
-                        <strong>Windsurf:</strong> "I'll create a modern presentation using Reveal.js..."
-                        <div class="code-preview">
-                            <p>🎨 HTML + CSS for presentations</p>
-                            <p>🔄 Live preview server</p>
-                            <p>📱 Responsive design</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
+        <!-- Example Interaction 4: Web Development -->
+        <section>
+          <h2>Full-Stack Capabilities</h2>
+          <div class="conversation">
+            <div class="prompt">
+              <span class="speaker">User:</span> "Could you create a web
+              presentation for the project?"
+            </div>
+            <div class="response">
+              <span class="speaker">Windsurf:</span> "I'll create a modern
+              presentation using Reveal.js..."
+              <div class="code-preview">
+                <p>🎨 HTML + CSS for presentations</p>
+                <p>🔄 Live preview server</p>
+                <p>📱 Responsive design</p>
+              </div>
+            </div>
+          </div>
+        </section>
 
-            <!-- Closing Slide -->
-            <section>
-                <h2>Why Windsurf?</h2>
-                <div class="closing-points">
-                    <ul>
-                        <li>🤖 AI-Powered Development</li>
-                        <li>📈 Increased Productivity</li>
-                        <li>🔧 Automated Setup & Configuration</li>
-                        <li>📖 Smart Documentation</li>
-                    </ul>
-                    <div class="next-steps">
-                        <p>Start building your next project with Windsurf!</p>
-                    </div>
-                </div>
-            </section>
-        </div>
+        <!-- Closing Slide -->
+        <section>
+          <h2>Why Windsurf?</h2>
+          <div class="closing-points">
+            <ul>
+              <li>🤖 AI-Powered Development</li>
+              <li>📈 Increased Productivity</li>
+              <li>🔧 Automated Setup & Configuration</li>
+              <li>📖 Smart Documentation</li>
+            </ul>
+            <div class="next-steps">
+              <p>Start building your next project with Windsurf!</p>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/plugin/zoom/zoom.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/plugin/notes/notes.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/plugin/search/search.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/plugin/markdown/markdown.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/plugin/highlight/highlight.js"></script>
     <script>
+      window.addEventListener("load", function () {
         Reveal.initialize({
-            hash: true,
-            slideNumber: true,
-            transition: 'slide',
-            controls: true,
-            progress: true
+          hash: true,
+          slideNumber: true,
+          transition: "none",
+          controls: true,
+          progress: true,
+          center: true,
+          width: 1200,
+          height: 800,
+          margin: 0.1,
+          minScale: 0.2,
+          maxScale: 1.5,
+          overview: true,
+          fragments: false,
+          fragmentInURL: false,
+          embedded: false,
+          help: true,
+          showNotes: false,
+          autoPlayMedia: false,
+          autoSlide: 0,
+          loop: false,
+          rtl: false,
+          navigationMode: "default",
+          shuffle: false,
+          hideInactiveCursor: true,
+          hideCursorTime: 3000,
+          viewDistance: 3,
+          plugins: [
+            RevealZoom,
+            RevealNotes,
+            RevealSearch,
+            RevealMarkdown,
+            RevealHighlight,
+          ],
         });
+      });
     </script>
-</body>
+  </body>
 </html>
